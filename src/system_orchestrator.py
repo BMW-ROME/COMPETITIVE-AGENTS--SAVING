@@ -10,7 +10,10 @@ import signal
 import sys
 
 from src.base_agent import BaseTradingAgent
-from src.trading_agents import ConservativeTradingAgent, AggressiveTradingAgent, BalancedTradingAgent
+from src.trading_agents import (
+    ConservativeTradingAgent, AggressiveTradingAgent, BalancedTradingAgent,
+    FractalAnalysisAgent, CandleRangeTheoryAgent, QuantitativePatternAgent
+)
 from src.hierarchy_manager import HierarchyManager
 from src.data_sources import DataAggregator, MarketDataProvider, NewsProvider, SocialMediaProvider
 from src.alpaca_integration import AlpacaTradingInterface
@@ -138,6 +141,12 @@ class TradingSystemOrchestrator:
                     agent = AggressiveTradingAgent(agent_config)
                 elif agent_config.agent_type == AgentType.BALANCED:
                     agent = BalancedTradingAgent(agent_config)
+                elif agent_config.agent_type == AgentType.FRACTAL_ANALYSIS:
+                    agent = FractalAnalysisAgent(agent_config)
+                elif agent_config.agent_type == AgentType.CANDLE_RANGE_THEORY:
+                    agent = CandleRangeTheoryAgent(agent_config)
+                elif agent_config.agent_type == AgentType.QUANTITATIVE_PATTERN:
+                    agent = QuantitativePatternAgent(agent_config)
                 else:
                     self.logger.warning(f"Unknown agent type: {agent_config.agent_type}")
                     continue

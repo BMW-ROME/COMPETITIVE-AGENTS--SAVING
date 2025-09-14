@@ -14,6 +14,9 @@ class AgentType(Enum):
     CONSERVATIVE = "conservative"
     AGGRESSIVE = "aggressive"
     BALANCED = "balanced"
+    FRACTAL_ANALYSIS = "fractal_analysis"
+    CANDLE_RANGE_THEORY = "candle_range_theory"
+    QUANTITATIVE_PATTERN = "quantitative_pattern"
 
 @dataclass
 class AlpacaConfig:
@@ -22,6 +25,19 @@ class AlpacaConfig:
     secret_key: str = os.getenv("ALPACA_SECRET_KEY", "")
     base_url: str = "https://paper-api.alpaca.markets"  # Paper trading by default
     data_url: str = "https://data.alpaca.markets"
+    
+    # Multiple exchange support
+    exchanges: List[str] = None
+    
+    def __post_init__(self):
+        if self.exchanges is None:
+            self.exchanges = [
+                "NASDAQ",  # Primary exchange
+                "NYSE",    # New York Stock Exchange
+                "ARCA",    # Archipelago Exchange
+                "BATS",    # BATS Global Markets
+                "IEX"      # Investors Exchange
+            ]
     
 @dataclass
 class DataSourceConfig:
@@ -92,7 +108,23 @@ class SystemConfig:
     
     def __post_init__(self):
         if self.trading_symbols is None:
-            self.trading_symbols = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN"]
+            # Expanded symbol list across different asset classes
+            self.trading_symbols = [
+                # Technology
+                "AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "NVDA", "META", "NFLX", "ADBE", "CRM",
+                # Financial
+                "JPM", "BAC", "WFC", "GS", "MS", "C", "AXP", "BLK", "SPGI", "V",
+                # Healthcare
+                "JNJ", "PFE", "UNH", "ABBV", "MRK", "TMO", "ABT", "DHR", "BMY", "AMGN",
+                # Consumer
+                "KO", "PEP", "WMT", "PG", "JNJ", "HD", "MCD", "NKE", "SBUX", "TGT",
+                # Energy
+                "XOM", "CVX", "COP", "EOG", "SLB", "PXD", "MPC", "VLO", "PSX", "KMI",
+                # Industrial
+                "BA", "CAT", "GE", "HON", "MMM", "UPS", "FDX", "LMT", "RTX", "DE",
+                # ETFs for diversification
+                "SPY", "QQQ", "IWM", "VTI", "VEA", "VWO", "BND", "TLT", "GLD", "SLV"
+            ]
         
         if self.trading_hours is None:
             self.trading_hours = {
@@ -103,8 +135,12 @@ class SystemConfig:
         
         if self.agent_configs is None:
             self.agent_configs = [
-                AgentConfig("agent_1", AgentType.CONSERVATIVE),
-                AgentConfig("agent_2", AgentType.AGGRESSIVE)
+                AgentConfig("conservative_1", AgentType.CONSERVATIVE, initial_capital=25000.0),
+                AgentConfig("aggressive_1", AgentType.AGGRESSIVE, initial_capital=25000.0),
+                AgentConfig("balanced_1", AgentType.BALANCED, initial_capital=25000.0),
+                AgentConfig("fractal_1", AgentType.FRACTAL_ANALYSIS, initial_capital=25000.0),
+                AgentConfig("candle_range_1", AgentType.CANDLE_RANGE_THEORY, initial_capital=25000.0),
+                AgentConfig("quant_pattern_1", AgentType.QUANTITATIVE_PATTERN, initial_capital=25000.0)
             ]
 
 # Global configuration instance
