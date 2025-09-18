@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+env*
+/tmp/cta_env_backup
+
+# Local virtualenvs and temp backups
+.env
+.env.*
+env*
+.venv
+/tmp/cta_*
