@@ -1,6 +1,13 @@
-# Competitive Trading Agents System
+# 🚀 COMPETITIVE AGENTS - Advanced Trading System
 
-A sophisticated multi-agent trading system where AI agents compete for accuracy, featuring self-reflective learning, hierarchical oversight, and real-time market analysis. The system integrates with Alpaca's algorithmic trading platform and analyzes multiple data sources including market trends, news articles, and social media sentiment.
+[![Code Quality](https://img.shields.io/badge/code%20quality-A-brightgreen)](https://github.com/BMW-ROME/COMPETITIVE-AGENTS--SAVING)
+[![Python](https://img.shields.io/badge/python-3.13+-blue)](https://python.org)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Trading](https://img.shields.io/badge/trading-paper%20only-yellow)](https://alpaca.markets)
+
+## 🎯 Advanced AI-Powered Trading System
+
+A sophisticated **Ultra-Aggressive Trading System** with advanced AI-powered market intelligence, featuring dynamic position sizing, comprehensive risk management, and adaptive market regime detection. The system integrates with Alpaca's algorithmic trading platform and provides real-time market analysis with intelligent decision-making capabilities.
 
 ## 🚀 Key Features
 
