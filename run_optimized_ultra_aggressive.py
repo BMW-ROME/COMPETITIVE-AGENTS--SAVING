@@ -57,14 +57,14 @@ class OptimizedUltraAggressiveTradingSystem:
             self.logger.error(f"❌ Failed to connect to Alpaca API: {e}")
             raise
 
-        # Initialize agents
+        # Initialize MAXIMAL PROFIT-GENERATING agents with 20X-50X risk tolerance boost!
         self.agents = {}
         self.agent_performance = {}
         self.cycle_count = 0
         self.total_trades = 0
         self.total_pnl = 0.0
         self.max_retries = 3
-        self.retry_delay = 3
+        self.retry_delay = 1  # TURBO: Reduced from 3s to 1s for faster recovery
 
         # Initialize Risk Management System
         self.position_monitors = {}  # Track SL/TP for each position
@@ -96,36 +96,38 @@ class OptimizedUltraAggressiveTradingSystem:
         self._initialize_agents()
 
     def _initialize_agents(self):
-        """Initialize 12 ultra aggressive agents with different aggression levels"""
+        """Initialize 12 MAXIMAL PROFIT-GENERATING agents with 20X-50X risk tolerance boost!"""
+        # CONSOLIDATING IDEAS FROM MAXIMAL SYSTEM - PROFIT-FOCUSED CONFIGURATION
         aggression_levels = [
-            {"level": "extreme", "confidence": 0.99, "max_position": 0.05, "trade_probability": 0.95},
-            {"level": "ultra", "confidence": 0.98, "max_position": 0.04, "trade_probability": 0.90},
-            {"level": "hyper", "confidence": 0.97, "max_position": 0.045, "trade_probability": 0.92},
-            {"level": "maximum", "confidence": 0.99, "max_position": 0.05, "trade_probability": 0.95},
-            {"level": "extreme", "confidence": 0.98, "max_position": 0.04, "trade_probability": 0.90},
-            {"level": "ultra", "confidence": 0.97, "max_position": 0.045, "trade_probability": 0.92},
-            {"level": "hyper", "confidence": 0.99, "max_position": 0.05, "trade_probability": 0.95},
-            {"level": "maximum", "confidence": 0.98, "max_position": 0.04, "trade_probability": 0.90},
-            {"level": "extreme", "confidence": 0.97, "max_position": 0.045, "trade_probability": 0.92},
-            {"level": "ultra", "confidence": 0.99, "max_position": 0.05, "trade_probability": 0.95},
-            {"level": "hyper", "confidence": 0.98, "max_position": 0.04, "trade_probability": 0.90},
-            {"level": "maximum", "confidence": 0.97, "max_position": 0.045, "trade_probability": 0.92},
+            {"level": "maximal_momentum_pro", "confidence": 0.99, "max_position": 0.25, "trade_probability": 0.98, "risk_tolerance": 25.0},
+            {"level": "maximal_ml_alpha", "confidence": 0.99, "max_position": 0.35, "trade_probability": 0.99, "risk_tolerance": 45.0},
+            {"level": "maximal_scalper_ultra", "confidence": 0.97, "max_position": 0.20, "trade_probability": 0.96, "risk_tolerance": 18.0},
+            {"level": "maximal_arbitrage_hunter", "confidence": 0.98, "max_position": 0.22, "trade_probability": 0.97, "risk_tolerance": 21.0},
+            {"level": "maximal_mean_reverter", "confidence": 0.95, "max_position": 0.18, "trade_probability": 0.94, "risk_tolerance": 15.0},
+            {"level": "maximal_balanced_gamma", "confidence": 0.98, "max_position": 0.24, "trade_probability": 0.97, "risk_tolerance": 22.5},
+            {"level": "maximal_momentum_beta", "confidence": 0.96, "max_position": 0.21, "trade_probability": 0.95, "risk_tolerance": 19.5},
+            {"level": "maximal_ml_omega", "confidence": 0.99, "max_position": 0.33, "trade_probability": 0.98, "risk_tolerance": 42.5},
+            {"level": "maximal_scalper_delta", "confidence": 0.97, "max_position": 0.22, "trade_probability": 0.96, "risk_tolerance": 21.0},
+            {"level": "maximal_arbitrage_sigma", "confidence": 0.98, "max_position": 0.26, "trade_probability": 0.97, "risk_tolerance": 24.0},
+            {"level": "maximal_balanced_theta", "confidence": 0.96, "max_position": 0.20, "trade_probability": 0.95, "risk_tolerance": 18.0},
+            {"level": "maximal_hybrid_lambda", "confidence": 0.99, "max_position": 0.40, "trade_probability": 0.99, "risk_tolerance": 45.0},
         ]
 
         for i, config in enumerate(aggression_levels, 1):
-            agent_id = f"optimized_ultra_{config['level']}_{i}"
+            agent_id = config["level"]  # Use maximal agent names directly
             self.agents[agent_id] = {
                 "id": agent_id,
-                "style": "ultra_aggressive",
+                "style": "maximal_profit_generating",
                 "aggression_level": config["level"],
                 "confidence": config["confidence"],
                 "max_position": config["max_position"],
                 "trade_probability": config["trade_probability"],
+                "risk_tolerance": config["risk_tolerance"],  # NEW: 20X-50X boost!
                 "trades_count": 0,
                 "win_rate": 0.0,
                 "total_pnl": 0.0,
                 "last_trade_time": None,
-                "cooldown_seconds": 30,  # Shorter cooldown for ultra aggressive
+                "cooldown_seconds": 5,  # TURBO: 30s → 5s for maximal trading volume!
             }
             self.agent_performance[agent_id] = {
                 "decisions": 0,
@@ -537,17 +539,21 @@ class OptimizedUltraAggressiveTradingSystem:
         action = None
         quantity = 0
 
-        # Get volatility-adjusted position sizing
+        # MAXIMAL PROFIT-GENERATING POSITION SIZING with RISK TOLERANCE BOOST!
         volatility = data.get("volatility", 0)
         base_volatility = 0.02  # 2% baseline volatility
         volatility_multiplier = max(
-            0.5, min(2.0, base_volatility / max(volatility, 0.01))
-        )  # Inverse volatility scaling
-
-        # Dynamic position sizing based on agent confidence and volatility
-        agent_max_position = agent["max_position"] * volatility_multiplier
+            0.8, min(3.0, base_volatility / max(volatility, 0.01))
+        )  # More aggressive scaling for MAXIMAL profits
+        
+        # CONSOLIDATE MAXIMAL IDEAS: Use risk_tolerance for massive position boost!
+        risk_tolerance = agent.get("risk_tolerance", 1.0)
+        maximal_boost = min(5.0, risk_tolerance / 10.0)  # Convert 20X-50X risk to 2X-5X position boost
+        
+        # Dynamic position sizing with MAXIMAL PROFIT FOCUS
+        agent_max_position = agent["max_position"] * volatility_multiplier * maximal_boost
         self.logger.debug(
-            f"Agent {agent_id} volatility: {volatility:.4f}, multiplier: {volatility_multiplier:.2f}, max_position: {agent_max_position:.4f}"
+            f"MAXIMAL Agent {agent_id}: volatility: {volatility:.4f}, boost: {maximal_boost:.2f}x, max_position: {agent_max_position:.4f}"
         )
 
         # Determine action based on current position and buying power
@@ -589,40 +595,45 @@ class OptimizedUltraAggressiveTradingSystem:
                     elif volatility < 0.01:  # Low volatility - larger positions
                         target_position_value *= 1.3
 
-                    # Calculate quantity based on target position value
-                    target_quantity = target_position_value / price
-
-                    # FRACTIONAL SHARES: Enable fractional share trading
+                    # MAXIMAL VOLUME TRADING: Calculate aggressive quantity with MAXIMAL BOOST
+                    risk_tolerance = agent.get("risk_tolerance", 1.0)
+                    maximal_boost = min(risk_tolerance / 10.0, 5.0)  # Up to 5x boost from risk tolerance
+                    target_quantity = (target_position_value / price) * maximal_boost
+                    
+                    # MAXIMAL SYSTEM CONSOLIDATION: Up to 100 shares per trade like maximal!
+                    max_shares_per_trade = min(100.0, buying_power * 0.95 / price)  # Up to 100 shares or 95% of buying power
+                    
+                    # AGGRESSIVE FRACTIONAL SHARES: Push limits for maximum utilization
                     if buying_power < price:
-                        # Buy fractional shares if we can't afford a full share
-                        quantity = round(min(target_quantity, buying_power * 0.88 / price), 6)
+                        # Buy maximum fractional shares possible
+                        quantity = round(min(target_quantity, buying_power * 0.95 / price), 4)  # 4 decimals like maximal
                     else:
-                        # Smart position sizing - use calculated target or minimum viable
+                        # MAXIMAL VOLUME: Use aggressive target with high limits
                         if target_quantity >= 1:
-                            quantity = round(target_quantity, 6)  # Use fractional if optimal
+                            quantity = round(min(target_quantity, max_shares_per_trade), 4)  # Maximal volume
                         else:
-                            quantity = round(buying_power * 0.88 / price, 6)  # Fallback to maximum affordable
+                            quantity = round(min(buying_power * 0.95 / price, max_shares_per_trade), 4)  # Max utilization
 
         if not action or quantity <= 0:
             return None
 
-        # Final validation with DYNAMIC RISK MANAGEMENT
+        # MAXIMAL FINAL VALIDATION: AGGRESSIVE CAPITAL UTILIZATION
         if action == "BUY":
             required_capital = quantity * price
-            max_capital = buying_power * 0.99  # Use up to 99% of buying power
+            max_capital = buying_power * 0.98  # Use up to 98% of buying power (aggressive!)
 
             if required_capital > max_capital:
-                # DYNAMIC ADJUSTMENT: Scale down position to fit available capital
-                if buying_power > 1.0:
-                    quantity = round(max_capital / price, 6)
+                # MAXIMAL ADJUSTMENT: Scale to use maximum available capital
+                if buying_power > 0.10:  # Lower threshold for micro-trades
+                    quantity = round(max_capital / price, 4)  # 4 decimals like maximal
                     self.logger.debug(
-                        f"Agent {agent_id} position scaled down: {required_capital:.2f} -> {quantity * price:.2f}"
+                        f"MAXIMAL Agent {agent_id} scaled: {required_capital:.2f} -> {quantity * price:.2f}"
                     )
                 else:
                     return None
 
-            # Additional check: Ensure minimum position size makes sense
-            if quantity * price < 0.50:  # Don't trade less than $0.50
+            # MAXIMAL VOLUME: Lower minimum threshold for higher trade frequency
+            if quantity * price < 0.10:  # Much lower threshold - trade even $0.10 positions!
                 return None
 
         elif action == "SELL":
@@ -630,11 +641,12 @@ class OptimizedUltraAggressiveTradingSystem:
                 quantity = abs(current_position)  # Sell entire position if quantity too high
                 self.logger.debug(f"Agent {agent_id} sell quantity capped at position size: {quantity}")
 
-        # DEBUG: Log successful decision with dynamic sizing info
+        # MAXIMAL: Log successful decision with profit-focused sizing info
         position_value = quantity * price
         volatility_pct = volatility * 100
+        risk_tolerance = agent.get("risk_tolerance", 1.0)
         self.logger.info(
-            f"🎯 DYNAMIC DECISION - Agent {agent_id}: {action} {quantity} {symbol} @ ${price:.2f} (${position_value:.2f} required, ${buying_power:.2f} available, {volatility_pct:.2f}% volatility)"
+            f"🚀 MAXIMAL DECISION - Agent {agent_id}: {action} {quantity} {symbol} @ ${price:.2f} (${position_value:.2f} required, ${buying_power:.2f} available, {volatility_pct:.2f}% vol, {risk_tolerance:.1f}x risk)"
         )
 
         return {
@@ -684,9 +696,9 @@ class OptimizedUltraAggressiveTradingSystem:
             # Execute the trade with retry logic
             for attempt in range(self.max_retries):
                 try:
-                    # Add small delay to avoid wash trade detection
+                    # MAXIMAL: Ultra-fast execution with minimal delay
                     if attempt > 0:
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(0.1)  # Maximal speed: 1s → 0.1s
 
                     if action == "BUY":
                         self.api.submit_order(
@@ -709,7 +721,7 @@ class OptimizedUltraAggressiveTradingSystem:
                 except Exception as e:
                     self.logger.warning(f"Trade execution attempt {attempt + 1} failed: {e}")
                     if attempt < self.max_retries - 1:
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(0.1)  # MAXIMAL speed: 1s → 0.1s retry delay
                     else:
                         raise e
 
@@ -861,17 +873,17 @@ class OptimizedUltraAggressiveTradingSystem:
                     self.agents[agent_id]["total_pnl"] = perf["total_pnl"]
                     perf["success_rate"] = perf["wins"] / perf["trades"]
 
-            # PHASE 6: Enhanced cycle summary with adaptive intelligence metrics
+            # PHASE 6: MAXIMAL profit-focused cycle summary with adaptive intelligence metrics
             cycle_duration = time.time() - cycle_start
-            self.logger.info(f"OPTIMIZED Ultra Aggressive Cycle {self.cycle_count} Summary:")
+            self.logger.info(f"🚀 MAXIMAL Profit-Generation Cycle {self.cycle_count} Summary:")
             self.logger.info(f"  🧠 Market Regime: {current_regime}")
             self.logger.info(f"  📊 Momentum Score: {self.market_regime['momentum_score']:.3f}")
-            self.logger.info(f"  Total Decisions: {len(agent_decisions)}")
-            self.logger.info(f"  Executed Trades: {executed_trades}")
+            self.logger.info(f"  🎯 Total Decisions: {len(agent_decisions)}")
+            self.logger.info(f"  ⚡ Executed Trades: {executed_trades}")
             self.logger.info(f"  🛡️ Risk Trades: {executed_risk_trades}")
-            self.logger.info(f"  Cycle Duration: {cycle_duration:.2f}s")
-            self.logger.info(f"  Total Trades: {self.total_trades}")
-            self.logger.info(f"  Total PnL: ${self.total_pnl:.2f}")
+            self.logger.info(f"  ⏱️ TURBO Cycle: {cycle_duration:.2f}s")
+            self.logger.info(f"  🔄 Total Trades: {self.total_trades}")
+            self.logger.info(f"  💰 MAXIMAL PnL: ${self.total_pnl:.2f}")
 
             # Log adaptive agent performance
             if agent_decisions:
@@ -904,18 +916,18 @@ class OptimizedUltraAggressiveTradingSystem:
     async def run_system(self):
         """Run the optimized ultra aggressive trading system"""
         self.logger.info("=" * 60)
-        self.logger.info("OPTIMIZED ULTRA AGGRESSIVE TRADING SYSTEM STARTING")
+        self.logger.info("🚀 MAXIMAL PROFIT-GENERATION TRADING SYSTEM STARTING")
         self.logger.info("=" * 60)
         self.logger.info("✅ Connected to Alpaca PAPER TRADING API")
-        self.logger.info(f"Initialized {len(self.agents)} OPTIMIZED ultra aggressive agents")
-        self.logger.info("OPTIMIZED ultra aggressive trading system initialized!")
-        self.logger.info("All agents will make ULTRA AGGRESSIVE decisions with guaranteed execution!")
-        self.logger.info("Using PAPER TRADING for safety!")
+        self.logger.info(f"🔥 Initialized {len(self.agents)} MAXIMAL profit-generation agents")
+        self.logger.info("💥 MAXIMAL CONFIGURATION: 20X-50X Risk Tolerance + TURBO Speed!")
+        self.logger.info("⚡ All agents configured for HIGH-VOLUME trading with aggressive positioning!")
+        self.logger.info("🎯 Using PAPER TRADING for safe profit maximization!")
 
         try:
             while True:
                 await self.run_cycle()
-                await asyncio.sleep(20)  # Shorter wait for ultra aggressive (20 seconds)
+                await asyncio.sleep(10)  # MAXIMAL TURBO SPEED: 20s → 10s for HIGH VOLUME trading!
 
         except KeyboardInterrupt:
             self.logger.info("System stopped by user")

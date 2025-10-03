@@ -1,0 +1,86 @@
+services:
+  # Minimal Alpaca Paper Trading System
+  alpaca-minimal:
+    build:
+      context: .
+      dockerfile: Dockerfile.minimal
+    container_name: alpaca-minimal
+    environment:
+      - TRADING_MODE=ALPACA_PAPER
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - ALPACA_API_KEY=${ALPACA_API_KEY:-PKK43GTIACJNUPGZPCPF}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY:-your_secret_key_here}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL:-https://paper-api.alpaca.markets}
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - trading-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Background Simulation (simplified)
+  simulation-minimal:
+    build:
+      context: .
+      dockerfile: Dockerfile.minimal
+    container_name: simulation-minimal
+    environment:
+      - TRADING_MODE=SIMULATION
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    command: python continuous_trading_system.py
+    restart: unless-stopped
+    networks:
+      - trading-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Minimal Log Monitor
+  log-monitor:
+    image: alpine:latest
+    container_name: minimal-log-monitor
+    volumes:
+      - ./logs:/logs:ro
+    command: >
+      sh -c "
+        while true; do
+          echo '====== MINIMAL ALPACA STATUS ======' &&
+          date &&
+          echo '' &&
+          if [ -f /logs/alpaca_paper_trading_minimal.log ]; then
+            echo '=== Recent Minimal Alpaca Activity ===' &&
+            tail -n 5 /logs/alpaca_paper_trading_minimal.log | grep -E 'MINIMAL TRADE|Portfolio Value|AGENT DECISIONS' &&
+            echo '' &&
+            TRADES=\$$(grep -c 'MINIMAL TRADE' /logs/alpaca_paper_trading_minimal.log 2>/dev/null || echo '0') &&
+            echo 'Total Minimal Trades: '\$$TRADES
+          else
+            echo 'Waiting for minimal Alpaca logs...'
+          fi &&
+          echo '===================================' &&
+          sleep 120
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge

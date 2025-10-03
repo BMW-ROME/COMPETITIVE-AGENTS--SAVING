@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-10-01T16:52:10.271742",
+  "system_info": {
+    "cpu_cores": 16,
+    "cpu_physical": 8,
+    "cpu_usage": 26.9,
+    "memory_gb": 6.68963623046875,
+    "memory_available_gb": 2.0287017822265625,
+    "memory_percent": 69.7,
+    "disk_gb": 1006.853931427002,
+    "disk_free_gb": 867.6221580505371
+  },
+  "recommendations": {
+    "trading_system": {
+      "cpu": 4,
+      "memory": 2.0
+    },
+    "database": {
+      "cpu": 2,
+      "memory": 1.0
+    },
+    "redis": {
+      "cpu": 1,
+      "memory": 0.33448181152343753
+    },
+    "monitoring": {
+      "cpu": 1,
+      "memory": 0.5
+    }
+  },
+  "docker_ready": true
+}

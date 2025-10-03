@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "ultimate-trading-system": {
+      "command": "python",
+      "args": ["ultra_simple_mcp_server.py"],
+      "cwd": ".",
+      "env": {
+        "PYTHONPATH": ".",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}

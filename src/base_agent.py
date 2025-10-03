@@ -10,6 +10,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import json
+import inspect
 
 from config.settings import AgentConfig, AgentType
 
@@ -68,6 +69,10 @@ class BaseTradingAgent(ABC):
         # Logging
         self.logger = logging.getLogger(f"Agent-{self.agent_id}")
         
+    async def get_current_positions(self) -> Dict[str, float]:
+        """Return a snapshot of the agent's known positions (demo stub)."""
+        return dict(self.positions)
+    
     @abstractmethod
     async def analyze_market_data(self, market_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze market data and return insights."""
@@ -104,11 +109,12 @@ class BaseTradingAgent(ABC):
         reflection_result = {
             "timestamp": datetime.now(),
             "agent_id": self.agent_id,
-            "current_metrics": current_metrics,
+            "current_metrics": current_metrics.__dict__,
             "reflection_insights": reflection_insights,
             "improvement_areas": improvement_areas,
             "learning_insights": learning_insights,
-            "action_plan": self.create_action_plan(improvement_areas)
+            "action_plan": self.create_action_plan(improvement_areas),
+            "trades_count": len(self.trade_history)
         }
         
         # Store reflection in memory
@@ -118,7 +124,7 @@ class BaseTradingAgent(ABC):
         
         self.last_reflection = datetime.now()
         return reflection_result
-    
+
     def calculate_performance_metrics(self) -> PerformanceMetrics:
         """Calculate comprehensive performance metrics."""
         if not self.trade_history:
@@ -231,8 +237,9 @@ class BaseTradingAgent(ABC):
         return {
             "insights": [
                 f"Recent win rate: {len(successful_patterns)}/{len(recent_trades)}",
-                f"Average confidence in successful trades: {np.mean([t.get('confidence', 0) for t in successful_patterns]) if successful_patterns else 0:.2f}",
-                f"Average confidence in failed trades: {np.mean([t.get('confidence', 0) for t in failed_patterns]) if failed_patterns else 0:.2f}"
+                # Compute confidence from trade objects, not reasoning strings
+                f"Average confidence in successful trades: {np.mean([tr.get('confidence', 0) for tr in recent_trades if tr.get('return',0)>0]) if recent_trades else 0:.2f}",
+                f"Average confidence in failed trades: {np.mean([tr.get('confidence', 0) for tr in recent_trades if tr.get('return',0)<=0]) if recent_trades else 0:.2f}"
             ],
             "patterns": {
                 "successful": successful_patterns,
@@ -322,7 +329,15 @@ class BaseTradingAgent(ABC):
     
     def should_reflect(self) -> bool:
         """Check if it's time for self-reflection."""
-        return (datetime.now() - self.last_reflection).total_seconds() >= self.reflection_interval
+        # Always reflect if we have trades but no recent reflections
+        if len(self.trade_history) > 0 and len(self.learning_memory) == 0:
+            return True
+        
+        # Reflect every 5 minutes or after every 5 trades
+        time_since_reflection = (datetime.now() - self.last_reflection).total_seconds()
+        trades_since_reflection = len(self.trade_history) - (self.learning_memory[-1].get('trades_count', 0) if self.learning_memory else 0)
+        
+        return time_since_reflection >= self.reflection_interval or trades_since_reflection >= 5
     
     async def run_cycle(self, market_data: Dict[str, Any]) -> Dict[str, Any]:
         """Run one complete cycle of the agent."""
@@ -336,10 +351,37 @@ class BaseTradingAgent(ABC):
         
         # Make trading decisions
         try:
-            decision = await self.make_trading_decision(market_data)
+            # Backward-compatible decision invocation: support optional 'analysis' param
+            sig = inspect.signature(self.make_trading_decision)
+            params = [p for p in sig.parameters.values() if p.name != 'self']
+            if any(p.name == 'analysis' for p in params) or len(params) > 1:
+                try:
+                    analysis = await self.analyze_market_data(market_data)
+                except Exception:
+                    analysis = None
+                decision = await self.make_trading_decision(market_data, analysis)
+            else:
+                decision = await self.make_trading_decision(market_data)
             if decision:
                 trade_result = await self.execute_trade(decision)
                 cycle_result["decisions"].append(trade_result)
+        except TypeError as e:
+            # Fallback: retry with analysis if a missing argument error is detected
+            msg = str(e)
+            if "missing 1 required positional argument" in msg and "analysis" in msg:
+                try:
+                    analysis = await self.analyze_market_data(market_data)
+                except Exception:
+                    analysis = None
+                try:
+                    decision = await self.make_trading_decision(market_data, analysis)
+                    if decision:
+                        trade_result = await self.execute_trade(decision)
+                        cycle_result["decisions"].append(trade_result)
+                except Exception as inner_e:
+                    self.logger.error(f"Error making trading decision after retry: {inner_e}")
+            else:
+                self.logger.error(f"Error making trading decision: {e}")
         except Exception as e:
             self.logger.error(f"Error making trading decision: {e}")
         

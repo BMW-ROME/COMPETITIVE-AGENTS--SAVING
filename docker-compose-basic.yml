@@ -1,0 +1,57 @@
+services:
+  # Basic services first
+  redis:
+    image: redis:7-alpine
+    container_name: ultimate-trading-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ultimate-trading-postgres
+    environment:
+      POSTGRES_DB: trading_agents
+      POSTGRES_USER: trading_user
+      POSTGRES_PASSWORD: trading_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  # Main trading system (no MCP dependencies)
+  trading-system:
+    build: .
+    container_name: ultimate-trading-system
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://trading_user:trading_password@postgres:5432/trading_agents
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_BASE_URL=https://paper-api.alpaca.markets
+      - MCP_ENABLED=false
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    command: ["python", "run_trading_system.py"]
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+volumes:
+  redis_data:
+  postgres_data:
+

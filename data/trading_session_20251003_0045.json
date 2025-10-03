@@ -1,0 +1,164 @@
+{
+  "timestamp": "2025-10-03T00:45:27.205878",
+  "stats": {
+    "start_time": "2025-10-03 00:43:55.213934",
+    "total_cycles": 1,
+    "total_decisions": 9,
+    "total_trades_attempted": 0,
+    "total_trades_executed": 0,
+    "total_pnl": 0.0,
+    "initial_buying_power": 47238.4,
+    "current_buying_power": 47238.4,
+    "best_agent": "",
+    "active_positions": 6
+  },
+  "agent_performance": {
+    "micro_conservative_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "micro_conservative_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "continuous_balanced_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "continuous_balanced_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "momentum_rider_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "momentum_rider_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "quick_scalper_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "quick_scalper_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "opportunity_hunter_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "opportunity_hunter_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "adaptive_learner_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "adaptive_learner_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    }
+  },
+  "current_positions": {
+    "BTCUSD": {
+      "quantity": 0.000879135,
+      "market_value": 105.704502,
+      "avg_entry_price": 120129.34,
+      "current_price": 120236.94,
+      "pnl": 0.094595,
+      "side": "long"
+    },
+    "DOGEUSD": {
+      "quantity": 419.423949061,
+      "market_value": 109.385766,
+      "avg_entry_price": 0.26035,
+      "current_price": 0.2608,
+      "pnl": 0.188741,
+      "side": "long"
+    },
+    "ETHUSD": {
+      "quantity": 0.023983652,
+      "market_value": 107.812272,
+      "avg_entry_price": 4482.52,
+      "current_price": 4495.24,
+      "pnl": 0.305072,
+      "side": "long"
+    },
+    "LTCUSD": {
+      "quantity": 0.901175227,
+      "market_value": 106.104371,
+      "avg_entry_price": 119.815,
+      "current_price": 117.74,
+      "pnl": -1.869939,
+      "side": "long"
+    },
+    "SOLUSD": {
+      "quantity": 0.471793727,
+      "market_value": 109.470298,
+      "avg_entry_price": 231.885,
+      "current_price": 232.03,
+      "pnl": 0.06841,
+      "side": "long"
+    },
+    "USDTUSD": {
+      "quantity": 108.058587376,
+      "market_value": 107.993752,
+      "avg_entry_price": 1.003097271,
+      "current_price": 0.9994,
+      "pnl": -0.399522,
+      "side": "long"
+    }
+  },
+  "cycle_count": 1
+}

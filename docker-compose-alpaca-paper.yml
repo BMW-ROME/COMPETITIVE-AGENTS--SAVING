@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # Alpaca Paper Trading System
+  alpaca-paper-trading:
+    build: .
+    container_name: alpaca-paper-trading-system
+    environment:
+      - TRADING_MODE=ALPACA_PAPER
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    command: python alpaca_paper_trading.py
+    restart: unless-stopped
+    networks:
+      - alpaca-network
+    ports:
+      - "8002:8000"  # Alpaca Paper Trading dashboard
+    healthcheck:
+      test: ["CMD", "python", "-c", "print('Alpaca Paper Trading System Running')"]
+      interval: 60s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+
+  # Background Simulation System (for comparison)
+  simulation-trading:
+    build: .
+    container_name: simulation-trading-system
+    environment:
+      - TRADING_MODE=SIMULATION
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    command: python continuous_trading_system.py
+    restart: unless-stopped
+    networks:
+      - alpaca-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+
+  # Log Aggregation and Monitoring
+  log-monitor:
+    image: alpine:latest
+    container_name: log-monitor
+    volumes:
+      - ./logs:/logs
+    command: >
+      sh -c "
+        while true; do
+          echo '=== Alpaca Paper Trading Logs ===' 
+          if [ -f /logs/alpaca_paper_trading.log ]; then
+            tail -n 20 /logs/alpaca_paper_trading.log
+          fi
+          echo ''
+          echo '=== Simulation Trading Logs ===' 
+          if [ -f /logs/continuous_trading.log ]; then
+            tail -n 20 /logs/continuous_trading.log
+          fi
+          echo ''
+          echo '=== System Status ===' 
+          date
+          echo ''
+          sleep 300
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - alpaca-network
+
+networks:
+  alpaca-network:
+    driver: bridge
+
+volumes:
+  alpaca-logs:
+  alpaca-data:

@@ -1,0 +1,212 @@
+services:
+  # MAXIMAL Alpaca Paper Trading System
+  alpaca-maximal:
+    build:
+      context: .
+      dockerfile: Dockerfile.maximal
+    container_name: alpaca-maximal-system
+    environment:
+      - TRADING_MODE=ALPACA_MAXIMAL
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - PYTHONOPTIMIZE=2
+      - ALPACA_API_KEY=${ALPACA_API_KEY:-PKK43GTIACJNUPGZPCPF}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY:-your_secret_key_here}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL:-https://paper-api.alpaca.markets}
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./models:/app/models
+      - ./cache:/app/cache
+      - ./backups:/app/backups
+    ports:
+      - "8000:8000"  # Main dashboard
+      - "8001:8001"  # Analytics dashboard
+      - "8002:8002"  # ML model API
+      - "8003:8003"  # WebSocket feeds
+    restart: unless-stopped
+    networks:
+      - maximal-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+
+  # Enhanced Background Simulation
+  simulation-maximal:
+    build:
+      context: .
+      dockerfile: Dockerfile.maximal
+    container_name: simulation-maximal
+    environment:
+      - TRADING_MODE=SIMULATION_MAXIMAL
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    command: python continuous_trading_system.py
+    restart: unless-stopped
+    networks:
+      - maximal-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # Redis for caching and real-time data
+  redis-maximal:
+    image: redis:7-alpine
+    container_name: redis-maximal
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - maximal-network
+    ports:
+      - "6379:6379"
+
+  # PostgreSQL for comprehensive data storage
+  postgres-maximal:
+    image: postgres:15-alpine
+    container_name: postgres-maximal
+    environment:
+      POSTGRES_DB: maximal_trading
+      POSTGRES_USER: maximal_trader
+      POSTGRES_PASSWORD: maximal_secure_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./sql/init_maximal.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - maximal-network
+    ports:
+      - "5432:5432"
+
+  # Advanced Log Analytics
+  log-analytics:
+    image: alpine:latest
+    container_name: maximal-log-analytics
+    volumes:
+      - ./logs:/logs:ro
+    command: >
+      sh -c "
+        apk add --no-cache curl jq &&
+        while true; do
+          echo '======================================' &&
+          echo '🚀 MAXIMAL ALPACA TRADING ANALYTICS' &&
+          echo '======================================' &&
+          echo 'Timestamp: '$(date) &&
+          echo '' &&
+          if [ -f /logs/alpaca_maximal.log ]; then
+            echo '=== Performance Summary ===' &&
+            TRADES=\$$(grep -c 'MAXIMAL TRADE' /logs/alpaca_maximal.log 2>/dev/null || echo '0') &&
+            CYCLES=\$$(grep -c 'MAXIMAL TRADING CYCLE' /logs/alpaca_maximal.log 2>/dev/null || echo '0') &&
+            DECISIONS=\$$(grep -c 'MAXIMAL AGENT DECISIONS' /logs/alpaca_maximal.log 2>/dev/null || echo '0') &&
+            echo 'Total Maximal Trades: '\$$TRADES &&
+            echo 'Trading Cycles: '\$$CYCLES &&
+            echo 'Agent Decisions: '\$$DECISIONS &&
+            echo '' &&
+            echo '=== Recent Maximal Activity ===' &&
+            tail -n 10 /logs/alpaca_maximal.log | grep -E 'MAXIMAL TRADE|Portfolio Value|CYCLE SUMMARY' &&
+            echo '' &&
+            echo '=== Agent Performance ===' &&
+            grep 'AGENT PERFORMANCE' /logs/alpaca_maximal.log | tail -n 5 &&
+            echo '' &&
+            echo '=== System Health ===' &&
+            if curl -s http://alpaca-maximal-system:8000/health > /dev/null 2>&1; then
+              echo '✅ Dashboard: Healthy'
+            else
+              echo '❌ Dashboard: Unavailable'
+            fi
+          else
+            echo '⏳ Waiting for maximal logs to be generated...'
+          fi &&
+          echo '' &&
+          if [ -f /logs/trades.log ]; then
+            echo '=== Trade Analytics ===' &&
+            RECENT_TRADES=\$$(tail -n 50 /logs/trades.log | wc -l) &&
+            echo 'Recent trades logged: '\$$RECENT_TRADES
+          fi &&
+          echo '' &&
+          if [ -f /logs/analytics.log ]; then
+            echo '=== ML Analytics ===' &&
+            ML_ENTRIES=\$$(wc -l < /logs/analytics.log 2>/dev/null || echo '0') &&
+            echo 'Analytics entries: '\$$ML_ENTRIES
+          fi &&
+          echo '======================================' &&
+          echo '' &&
+          sleep 300
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - maximal-network
+    depends_on:
+      - alpaca-maximal
+
+  # Performance Monitor
+  performance-monitor:
+    image: alpine:latest
+    container_name: maximal-performance-monitor
+    volumes:
+      - ./reports:/reports:ro
+    command: >
+      sh -c "
+        apk add --no-cache curl &&
+        while true; do
+          echo '=== MAXIMAL SYSTEM PERFORMANCE ===' &&
+          echo 'Memory Usage:' &&
+          free -m 2>/dev/null || echo 'Memory info unavailable' &&
+          echo '' &&
+          echo 'Container Stats:' &&
+          if [ -f /reports/latest_performance.json ]; then
+            echo 'Latest report found'
+            wc -l /reports/*.json 2>/dev/null | tail -n 5
+          else
+            echo 'No performance reports yet'
+          fi &&
+          echo '' &&
+          sleep 600
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - maximal-network
+
+networks:
+  maximal-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+  maximal-logs:
+    driver: local
+  maximal-data:
+    driver: local
+  maximal-reports:
+    driver: local

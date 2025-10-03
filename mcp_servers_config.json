@@ -1,0 +1,67 @@
+{
+  "mcpServers": {
+    "trading-gordon": {
+      "command": "python",
+      "args": ["mcp_models/gordon/model_server.py"],
+      "env": {
+        "MODEL_NAME": "gordon_assistant",
+        "PORT": "8001",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "trading-llama2": {
+      "command": "python",
+      "args": ["mcp_models/llama2/model_server.py"],
+      "env": {
+        "MODEL_NAME": "llama2_7b", 
+        "PORT": "8002",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "trading-mistral": {
+      "command": "python",
+      "args": ["mcp_models/mistral/model_server.py"],
+      "env": {
+        "MODEL_NAME": "mistral_7b",
+        "PORT": "8003", 
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "trading-codellama": {
+      "command": "python",
+      "args": ["mcp_models/codellama/model_server.py"],
+      "env": {
+        "MODEL_NAME": "codellama_7b",
+        "PORT": "8004",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "trading-financial": {
+      "command": "python",
+      "args": ["mcp_models/financial/model_server.py"],
+      "env": {
+        "MODEL_NAME": "financial_llm",
+        "PORT": "8005",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "trading-sentiment": {
+      "command": "python",
+      "args": ["mcp_models/sentiment/model_server.py"],
+      "env": {
+        "MODEL_NAME": "sentiment_analyzer",
+        "PORT": "8006",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "trading-risk": {
+      "command": "python",
+      "args": ["mcp_models/risk/model_server.py"],
+      "env": {
+        "MODEL_NAME": "risk_analyzer",
+        "PORT": "8007",
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  }
+}

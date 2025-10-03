@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Trading System Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js@2.24.0/dist/plotly.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online { background-color: #27ae60; }
+        .status-offline { background-color: #e74c3c; }
+        .status-warning { background-color: #f39c12; }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .positive { color: #27ae60; }
+        .negative { color: #e74c3c; }
+        .neutral { color: #3498db; }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+        
+        .agent-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .agent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .agent-item:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .agent-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .agent-performance {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .performance-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-excellent { background: #27ae60; color: white; }
+        .badge-good { background: #3498db; color: white; }
+        .badge-average { background: #f39c12; color: white; }
+        .badge-poor { background: #e74c3c; color: white; }
+        
+        .sentiment-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .sentiment-bullish { background-color: #27ae60; }
+        .sentiment-bearish { background-color: #e74c3c; }
+        .sentiment-neutral { background-color: #f39c12; }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>
+            <span class="status-indicator status-online"></span>
+            Advanced Trading System Dashboard
+        </h1>
+    </div>
+    
+    <div class="container">
+        <div class="grid">
+            <!-- System Overview -->
+            <div class="card">
+                <h2>System Overview</h2>
+                <div id="system-overview">
+                    <div class="loading">Loading system data...</div>
+                </div>
+            </div>
+            
+            <!-- Risk Metrics -->
+            <div class="card">
+                <h2>Risk Management</h2>
+                <div id="risk-metrics">
+                    <div class="loading">Loading risk data...</div>
+                </div>
+            </div>
+            
+            <!-- Sentiment Analysis -->
+            <div class="card">
+                <h2>Market Sentiment</h2>
+                <div id="sentiment-analysis">
+                    <div class="loading">Loading sentiment data...</div>
+                </div>
+            </div>
+            
+            <!-- Backtesting Results -->
+            <div class="card">
+                <h2>Strategy Optimization</h2>
+                <div id="backtesting-results">
+                    <div class="loading">Loading optimization data...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <!-- Agent Performance -->
+            <div class="card">
+                <h2>Agent Performance</h2>
+                <div id="agent-performance">
+                    <div class="loading">Loading agent data...</div>
+                </div>
+            </div>
+            
+            <!-- Market Analysis -->
+            <div class="card">
+                <h2>Market Analysis</h2>
+                <div id="market-analysis">
+                    <div class="loading">Loading market data...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Performance Charts</h2>
+            <div class="chart-container">
+                <canvas id="performance-chart"></canvas>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="refresh-btn" onclick="refreshAllData()">🔄 Refresh All Data</button>
+        </div>
+        
+        <div class="last-updated" id="last-updated">
+            Last updated: Never
+        </div>
+    </div>
+    
+    <script>
+        let performanceChart;
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChart();
+            refreshAllData();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(refreshAllData, 30000);
+        });
+        
+        function initializeChart() {
+            const ctx = document.getElementById('performance-chart').getContext('2d');
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        async function refreshAllData() {
+            try {
+                await Promise.all([
+                    loadSystemOverview(),
+                    loadRiskMetrics(),
+                    loadSentimentAnalysis(),
+                    loadBacktestingResults(),
+                    loadAgentPerformance(),
+                    loadMarketAnalysis()
+                ]);
+                
+                document.getElementById('last-updated').textContent = 
+                    `Last updated: ${new Date().toLocaleTimeString()}`;
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        }
+        
+        async function loadSystemOverview() {
+            try {
+                const response = await fetch('/api/system-overview');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('system-overview').innerHTML = 
+                        `<div class="error">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const html = `
+                    <div class="metric">
+                        <span class="metric-label">Total Trades (24h)</span>
+                        <span class="metric-value">${data.trade_stats.total_trades}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Success Rate</span>
+                        <span class="metric-value ${data.trade_stats.total_trades > 0 ? 
+                            (data.trade_stats.successful_trades / data.trade_stats.total_trades > 0.6 ? 'positive' : 'negative') : 'neutral'}">
+                            ${data.trade_stats.total_trades > 0 ? 
+                                ((data.trade_stats.successful_trades / data.trade_stats.total_trades) * 100).toFixed(1) + '%' : '0%'}
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Avg P&L</span>
+                        <span class="metric-value ${data.trade_stats.avg_profit_loss >= 0 ? 'positive' : 'negative'}">
+                            $${data.trade_stats.avg_profit_loss ? data.trade_stats.avg_profit_loss.toFixed(2) : '0.00'}
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Active Agents</span>
+                        <span class="metric-value">${data.agent_performance.length}</span>
+                    </div>
+                `;
+                
+                document.getElementById('system-overview').innerHTML = html;
+            } catch (error) {
+                document.getElementById('system-overview').innerHTML = 
+                    `<div class="error">Error loading system overview</div>`;
+            }
+        }
+        
+        async function loadRiskMetrics() {
+            try {
+                const response = await fetch('/api/risk-metrics');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('risk-metrics').innerHTML = 
+                        `<div class="error">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const html = `
+                    <div class="metric">
+                        <span class="metric-label">Max Drawdown</span>
+                        <span class="metric-value ${data.risk_metrics.max_drawdown < 0.1 ? 'positive' : 'negative'}">
+                            ${(data.risk_metrics.max_drawdown * 100).toFixed(2)}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Current Drawdown</span>
+                        <span class="metric-value ${data.risk_metrics.current_drawdown < 0.05 ? 'positive' : 'negative'}">
+                            ${(data.risk_metrics.current_drawdown * 100).toFixed(2)}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Position Count</span>
+                        <span class="metric-value">${data.portfolio_metrics.position_count}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Exposure</span>
+                        <span class="metric-value">$${data.portfolio_metrics.total_exposure.toFixed(2)}</span>
+                    </div>
+                `;
+                
+                document.getElementById('risk-metrics').innerHTML = html;
+            } catch (error) {
+                document.getElementById('risk-metrics').innerHTML = 
+                    `<div class="error">Error loading risk metrics</div>`;
+            }
+        }
+        
+        async function loadSentimentAnalysis() {
+            try {
+                const response = await fetch('/api/sentiment-analysis');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('sentiment-analysis').innerHTML = 
+                        `<div class="error">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const sentiment = data.market_sentiment.overall_sentiment;
+                const sentimentClass = sentiment > 0.1 ? 'sentiment-bullish' : 
+                                     sentiment < -0.1 ? 'sentiment-bearish' : 'sentiment-neutral';
+                
+                const html = `
+                    <div class="metric">
+                        <span class="metric-label">Market Sentiment</span>
+                        <span class="metric-value">
+                            <span class="sentiment-indicator ${sentimentClass}"></span>
+                            ${(sentiment * 100).toFixed(1)}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Confidence</span>
+                        <span class="metric-value">${(data.market_sentiment.confidence * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Bullish Symbols</span>
+                        <span class="metric-value positive">${data.market_sentiment.bullish_symbols.length}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Bearish Symbols</span>
+                        <span class="metric-value negative">${data.market_sentiment.bearish_symbols.length}</span>
+                    </div>
+                `;
+                
+                document.getElementById('sentiment-analysis').innerHTML = html;
+            } catch (error) {
+                document.getElementById('sentiment-analysis').innerHTML = 
+                    `<div class="error">Error loading sentiment analysis</div>`;
+            }
+        }
+        
+        async function loadBacktestingResults() {
+            try {
+                const response = await fetch('/api/backtesting-results');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('backtesting-results').innerHTML = 
+                        `<div class="error">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const html = `
+                    <div class="metric">
+                        <span class="metric-label">System Score</span>
+                        <span class="metric-value ${data.optimization_summary.system_avg_score > 0.7 ? 'positive' : 'negative'}">
+                            ${(data.optimization_summary.system_avg_score * 100).toFixed(1)}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Best Agent</span>
+                        <span class="metric-value">${data.optimization_summary.best_performing_agent}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Best Score</span>
+                        <span class="metric-value positive">${(data.optimization_summary.best_score * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Optimizations</span>
+                        <span class="metric-value">${data.optimization_summary.total_optimizations}</span>
+                    </div>
+                `;
+                
+                document.getElementById('backtesting-results').innerHTML = html;
+            } catch (error) {
+                document.getElementById('backtesting-results').innerHTML = 
+                    `<div class="error">Error loading backtesting results</div>`;
+            }
+        }
+        
+        async function loadAgentPerformance() {
+            try {
+                const response = await fetch('/api/agent-performance');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('agent-performance').innerHTML = 
+                        `<div class="error">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const html = `
+                    <div class="agent-list">
+                        ${data.agent_performance.map(agent => {
+                            const badgeClass = agent.total_profit_loss > 100 ? 'badge-excellent' :
+                                             agent.total_profit_loss > 0 ? 'badge-good' :
+                                             agent.total_profit_loss > -50 ? 'badge-average' : 'badge-poor';
+                            
+                            return `
+                                <div class="agent-item">
+                                    <div class="agent-name">${agent.agent_id}</div>
+                                    <div class="agent-performance">
+                                        <span class="performance-badge ${badgeClass}">
+                                            $${agent.total_profit_loss.toFixed(2)}
+                                        </span>
+                                        <span>${agent.success_rate.toFixed(1)}%</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                
+                document.getElementById('agent-performance').innerHTML = html;
+            } catch (error) {
+                document.getElementById('agent-performance').innerHTML = 
+                    `<div class="error">Error loading agent performance</div>`;
+            }
+        }
+        
+        async function loadMarketAnalysis() {
+            try {
+                const response = await fetch('/api/market-analysis');
+                const data = await response.json();
+                
+                if (data.error) {
+                    document.getElementById('market-analysis').innerHTML = 
+                        `<div class="error">Error: ${data.error}</div>`;
+                    return;
+                }
+                
+                const html = `
+                    <div class="agent-list">
+                        ${data.market_analysis.map(market => `
+                            <div class="agent-item">
+                                <div class="agent-name">${market.symbol}</div>
+                                <div class="agent-performance">
+                                    <span class="performance-badge ${market.total_pnl >= 0 ? 'badge-good' : 'badge-poor'}">
+                                        $${market.total_pnl.toFixed(2)}
+                                    </span>
+                                    <span>${market.trade_count} trades</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                document.getElementById('market-analysis').innerHTML = html;
+            } catch (error) {
+                document.getElementById('market-analysis').innerHTML = 
+                    `<div class="error">Error loading market analysis</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
+

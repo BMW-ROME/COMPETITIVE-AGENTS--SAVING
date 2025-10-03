@@ -1,0 +1,29 @@
+{
+  "trading_symbols": [
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "TSLA",
+    "SPY",
+    "QQQ"
+  ],
+  "max_position_size": 0.05,
+  "max_daily_loss": 0.02,
+  "reflection_interval": 300,
+  "risk_management": {
+    "stop_loss_pct": 0.03,
+    "take_profit_pct": 0.06,
+    "max_correlation": 0.7,
+    "max_volatility": 0.5
+  },
+  "data_sources": {
+    "cache_duration": 300,
+    "retry_attempts": 3,
+    "timeout": 30
+  },
+  "ai_models": {
+    "confidence_threshold": 0.6,
+    "cache_duration": 300,
+    "fallback_enabled": true
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "crypto_24x7_config": {
+    "description": "24/7 Crypto Trading Configuration - Never Stop Trading",
+    "version": "1.0.0",
+    "timestamp": "2024-12-28",
+    
+    "trading_parameters": {
+      "cycle_interval_seconds": 60,
+      "max_trade_value_usd": 100,
+      "min_buying_power_threshold": 500,
+      "max_concurrent_positions": 10,
+      "execution_timeout_seconds": 30
+    },
+    
+    "crypto_assets": {
+      "major_pairs": [
+        "BTC/USD", "ETH/USD", "DOGE/USD", "LTC/USD", "SOL/USD",
+        "AVAX/USD", "MATIC/USD", "DOT/USD", "LINK/USD", "UNI/USD"
+      ],
+      "stable_pairs": [
+        "BTC/USDT", "ETH/USDT", "DOGE/USDT", "LTC/USDT", "SOL/USDT",
+        "AVAX/USDT", "MATIC/USDT", "DOT/USDT", "LINK/USDT", "UNI/USDT"
+      ],
+      "usdc_pairs": [
+        "BTC/USDC", "ETH/USDC", "DOGE/USDC", "LTC/USDC", "SOL/USDC",
+        "AVAX/USDC", "MATIC/USDC", "DOT/USDC", "LINK/USDC", "UNI/USDC"
+      ]
+    },
+    
+    "trading_strategies": {
+      "scalping": {
+        "timeframe": "1min",
+        "min_move_threshold_pct": 0.2,
+        "max_move_threshold_pct": 2.0,
+        "position_size_pct": 15,
+        "risk_tolerance": 0.3,
+        "target_symbols": ["BTC/USD", "ETH/USD", "DOGE/USD", "LTC/USD"]
+      },
+      "momentum": {
+        "timeframe": "5min",
+        "min_move_threshold_pct": 1.0,
+        "max_move_threshold_pct": 5.0,
+        "position_size_pct": 20,
+        "risk_tolerance": 0.5,
+        "target_symbols": ["SOL/USD", "BTC/USDT", "ETH/USDT", "AVAX/USD"]
+      },
+      "arbitrage": {
+        "timeframe": "1min",
+        "min_spread_threshold_pct": 0.1,
+        "max_spread_threshold_pct": 1.0,
+        "position_size_pct": 25,
+        "risk_tolerance": 0.2,
+        "cross_pairs": [
+          ["BTC/USD", "BTC/USDT", "BTC/USDC"],
+          ["ETH/USD", "ETH/USDT", "ETH/USDC"],
+          ["SOL/USD", "SOL/USDT", "SOL/USDC"]
+        ]
+      },
+      "swing": {
+        "timeframe": "15min",
+        "min_move_threshold_pct": 2.0,
+        "max_move_threshold_pct": 10.0,
+        "position_size_pct": 30,
+        "risk_tolerance": 0.7,
+        "target_symbols": ["BTC/USD", "ETH/USD", "SOL/USD", "AVAX/USD"]
+      },
+      "exploration": {
+        "timeframe": "1min",
+        "random_trade_probability": 0.3,
+        "position_size_pct": 10,
+        "risk_tolerance": 0.4,
+        "exploration_symbols": "all"
+      }
+    },
+    
+    "rl_optimization": {
+      "enable_100_percent_execution": true,
+      "learning_rate": 0.01,
+      "epsilon_start": 0.9,
+      "epsilon_end": 0.05,
+      "epsilon_decay": 0.995,
+      "memory_size": 10000,
+      "batch_size": 32,
+      "target_update_frequency": 100,
+      "execution_probability_targets": {
+        "crypto_scalper": 0.85,
+        "crypto_momentum": 0.80,
+        "crypto_arbitrage": 0.90,
+        "crypto_swing": 0.75,
+        "crypto_explorer": 0.60
+      }
+    },
+    
+    "risk_management": {
+      "max_portfolio_risk_pct": 5.0,
+      "max_single_position_pct": 2.0,
+      "stop_loss_pct": 3.0,
+      "take_profit_pct": 1.5,
+      "daily_loss_limit_pct": 10.0,
+      "position_sizing_method": "volatility_adjusted",
+      "correlation_limits": {
+        "max_correlated_positions": 3,
+        "correlation_threshold": 0.7
+      }
+    },
+    
+    "market_data": {
+      "primary_timeframe": "1Min",
+      "secondary_timeframe": "5Min",
+      "lookback_periods": 20,
+      "volume_analysis": true,
+      "technical_indicators": [
+        "sma_fast", "sma_slow", "rsi", "macd", "bollinger_bands"
+      ],
+      "crypto_specific_metrics": [
+        "funding_rates", "open_interest", "social_sentiment", "whale_movements"
+      ]
+    },
+    
+    "execution_settings": {
+      "order_type": "market",
+      "time_in_force": "gtc",
+      "retry_attempts": 3,
+      "retry_delay_seconds": 1,
+      "slippage_tolerance_pct": 0.5,
+      "partial_fills_allowed": true
+    },
+    
+    "monitoring": {
+      "performance_log_interval": 10,
+      "detailed_report_interval": 100,
+      "save_session_data": true,
+      "alert_thresholds": {
+        "execution_rate_below_pct": 70,
+        "daily_loss_above_pct": 5,
+        "position_count_above": 8
+      }
+    },
+    
+    "integration": {
+      "paper_trading_integration": true,
+      "run_parallel_with_stocks": true,
+      "shared_risk_limits": true,
+      "cross_asset_correlation_analysis": true,
+      "unified_performance_reporting": true
+    },
+    
+    "advanced_features": {
+      "dynamic_position_sizing": true,
+      "volatility_clustering": true,
+      "regime_detection": true,
+      "news_sentiment_integration": false,
+      "social_media_signals": false,
+      "defi_yield_farming": false,
+      "cross_exchange_arbitrage": false
+    }
+  }
+}

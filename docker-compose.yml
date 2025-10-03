@@ -1,0 +1,113 @@
+services:
+  # Main Trading System Container
+  trading-system:
+    build: .
+    container_name: trading-agents-system
+    environment:
+      - TRADING_MODE=PAPER
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    command: python continuous_real_alpaca_trading.py
+    restart: unless-stopped
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - trading-network
+    ports:
+      - "8000:8000"  # Monitoring dashboard
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # profiles:
+    #   - paper  # Default profile
+
+  # Live Trading Mode (same container, different command)
+  trading-system-live:
+    build: .
+    container_name: trading-agents-live
+    environment:
+      - TRADING_MODE=LIVE
+    env_file:
+      - .env.live  # Separate env file for live trading
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    command: python continuous_live_trading_windows.py
+    restart: unless-stopped
+    networks:
+      - trading-network
+    ports:
+      - "8001:8000"  # Live trading dashboard
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - live  # Only start with --profile live
+
+  # Redis for caching and message queuing
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  # PostgreSQL for data persistence
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading-postgres
+    environment:
+      POSTGRES_DB: trading_agents
+      POSTGRES_USER: trader
+      POSTGRES_PASSWORD: trading_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+  # Monitoring Dashboard (optional; run with --profile monitoring)
+  monitoring:
+    build: .
+    container_name: trading-monitoring
+    ports:
+      - "8000:8000"  # Paper trading dashboard
+      - "8001:8001"  # Live trading dashboard
+    environment:
+      - FLASK_ENV=production
+    command: python monitoring_dashboard.py
+    restart: unless-stopped
+    networks:
+      - trading-network
+    depends_on:
+      - redis
+      - postgres
+    profiles:
+      - monitoring
+
+volumes:
+  redis-data:
+  postgres-data:
+
+networks:
+  trading-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

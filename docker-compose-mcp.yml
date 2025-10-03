@@ -1,0 +1,239 @@
+services:
+  # Existing services
+  redis:
+    image: redis:7-alpine
+    container_name: ultimate-trading-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ultimate-trading-postgres
+    environment:
+      POSTGRES_DB: trading_agents
+      POSTGRES_USER: trading_user
+      POSTGRES_PASSWORD: trading_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  # MCP Models
+  gordon-assistant:
+    build:
+      context: ./mcp_models/gordon
+      dockerfile: Dockerfile
+    container_name: mcp-gordon
+    ports:
+      - "8001:8001"
+    environment:
+      - MODEL_NAME=gordon_assistant
+      - PORT=8001
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./mcp_models/gordon:/app/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  llama2-7b:
+    build:
+      context: ./mcp_models/llama2
+      dockerfile: Dockerfile
+    container_name: mcp-llama2
+    ports:
+      - "8002:8002"
+    environment:
+      - MODEL_NAME=llama2_7b
+      - PORT=8002
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./mcp_models/llama2:/app/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+  mistral-7b:
+    build:
+      context: ./mcp_models/mistral
+      dockerfile: Dockerfile
+    container_name: mcp-mistral
+    ports:
+      - "8003:8003"
+    environment:
+      - MODEL_NAME=mistral_7b
+      - PORT=8003
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./mcp_models/mistral:/app/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+  codellama-7b:
+    build:
+      context: ./mcp_models/codellama
+      dockerfile: Dockerfile
+    container_name: mcp-codellama
+    ports:
+      - "8004:8004"
+    environment:
+      - MODEL_NAME=codellama_7b
+      - PORT=8004
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./mcp_models/codellama:/app/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+  financial-llm:
+    build:
+      context: ./mcp_models/financial
+      dockerfile: Dockerfile
+    container_name: mcp-financial-llm
+    ports:
+      - "8005:8005"
+    environment:
+      - MODEL_NAME=financial_llm
+      - PORT=8005
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./mcp_models/financial:/app/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 3G
+
+  sentiment-analyzer:
+    build:
+      context: ./mcp_models/sentiment
+      dockerfile: Dockerfile
+    container_name: mcp-sentiment-analyzer
+    ports:
+      - "8006:8006"
+    environment:
+      - MODEL_NAME=sentiment_analyzer
+      - PORT=8006
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./mcp_models/sentiment:/app/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  risk-analyzer:
+    build:
+      context: ./mcp_models/risk
+      dockerfile: Dockerfile
+    container_name: mcp-risk-analyzer
+    ports:
+      - "8007:8007"
+    environment:
+      - MODEL_NAME=risk_analyzer
+      - PORT=8007
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./mcp_models/risk:/app/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+  # Main trading system with MCP integration
+  trading-system:
+    build: .
+    container_name: ultimate-trading-system
+    depends_on:
+      - redis
+      - postgres
+      - gordon-assistant
+      - llama2-7b
+      - mistral-7b
+      - codellama-7b
+      - financial-llm
+      - sentiment-analyzer
+      - risk-analyzer
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://trading_user:trading_password@postgres:5432/trading_agents
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_BASE_URL=https://paper-api.alpaca.markets
+      - MCP_ENABLED=true
+      - MCP_GORDON_URL=http://gordon-assistant:8001
+      - MCP_LLAMA2_URL=http://llama2-7b:8002
+      - MCP_MISTRAL_URL=http://mistral-7b:8003
+      - MCP_CODELLAMA_URL=http://codellama-7b:8004
+      - MCP_FINANCIAL_URL=http://financial-llm:8005
+      - MCP_SENTIMENT_URL=http://sentiment-analyzer:8006
+      - MCP_RISK_URL=http://risk-analyzer:8007
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./mcp_models:/app/mcp_models
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    command: ["python", "run_ultimate_system_with_mcp.py"]
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
+  # MCP Management Dashboard
+  mcp-dashboard:
+    build: .
+    container_name: mcp-dashboard
+    ports:
+      - "8008:8008"
+    environment:
+      - MCP_GORDON_URL=http://gordon-assistant:8001
+      - MCP_LLAMA2_URL=http://llama2-7b:8002
+      - MCP_MISTRAL_URL=http://mistral-7b:8003
+      - MCP_CODELLAMA_URL=http://codellama-7b:8004
+      - MCP_FINANCIAL_URL=http://financial-llm:8005
+      - MCP_SENTIMENT_URL=http://sentiment-analyzer:8006
+      - MCP_RISK_URL=http://risk-analyzer:8007
+    volumes:
+      - ./mcp_dashboard:/app/mcp_dashboard
+    restart: unless-stopped
+    command: ["python", "mcp_dashboard.py"]
+
+volumes:
+  redis_data:
+  postgres_data:
+  mcp_models:

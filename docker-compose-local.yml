@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # Main Alpaca Paper Trading System
+  alpaca-paper-trading:
+    build:
+      context: .
+      dockerfile: Dockerfile.alpaca
+    container_name: alpaca-paper-trading
+    environment:
+      - TRADING_MODE=ALPACA_PAPER
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - trading-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # Background Simulation (for comparison)
+  simulation-trading:
+    build:
+      context: .
+      dockerfile: Dockerfile.alpaca
+    container_name: simulation-trading
+    environment:
+      - TRADING_MODE=SIMULATION
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    command: python continuous_trading_system.py
+    restart: unless-stopped
+    networks:
+      - trading-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # Log Monitor and Dashboard
+  log-monitor:
+    image: alpine:latest
+    container_name: trading-log-monitor
+    volumes:
+      - ./logs:/logs:ro
+    command: >
+      sh -c "
+        apk add --no-cache curl &&
+        while true; do
+          echo '====== ALPACA PAPER TRADING STATUS ======' &&
+          echo 'Time: '$(date) &&
+          echo '' &&
+          if [ -f /logs/alpaca_paper_trading.log ]; then
+            echo '=== Recent Alpaca Activity (Last 10 lines) ===' &&
+            tail -n 10 /logs/alpaca_paper_trading.log &&
+            echo '' &&
+            echo '=== Trading Statistics ===' &&
+            TRADES=$(grep -c 'REAL PAPER TRADE' /logs/alpaca_paper_trading.log 2>/dev/null || echo '0') &&
+            CYCLES=$(grep -c 'PAPER TRADING CYCLE' /logs/alpaca_paper_trading.log 2>/dev/null || echo '0') &&
+            DECISIONS=$(grep -c 'AGENT DECISIONS' /logs/alpaca_paper_trading.log 2>/dev/null || echo '0') &&
+            echo 'Total Trades: '$$TRADES &&
+            echo 'Trading Cycles: '$$CYCLES &&
+            echo 'Agent Decisions: '$$DECISIONS
+          else
+            echo 'No Alpaca log file found yet...'
+          fi &&
+          echo '' &&
+          if [ -f /logs/continuous_trading.log ]; then
+            echo '=== Simulation Activity ===' &&
+            SIM_TRADES=$(grep -c 'FILLED' /logs/continuous_trading.log 2>/dev/null || echo '0') &&
+            echo 'Simulation Trades: '$$SIM_TRADES
+          fi &&
+          echo '=========================================' &&
+          echo '' &&
+          sleep 300
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  trading-logs:
+  trading-data:
+  trading-reports:

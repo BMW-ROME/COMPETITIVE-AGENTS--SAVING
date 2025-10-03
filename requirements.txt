@@ -9,9 +9,13 @@ scipy==1.11.1
 # talib==0.4.25  # Commented out - requires special installation on Windows
 
 # Trading and financial data
-alpaca-trade-api==3.0.3
+alpaca-trade-api==3.2.0
 yfinance==0.2.18
 alpha-vantage==2.3.1
+
+# Web dashboard
+flask==2.3.3
+python-dotenv==1.0.0
 ccxt==4.0.77
 
 # Data processing and analysis
@@ -20,6 +24,9 @@ beautifulsoup4==4.12.2
 tweepy==4.14.0
 textblob==0.17.1
 vaderSentiment==3.3.2
+huggingface_hub>=0.23.2
+feedparser==6.0.10
+pytz==2023.3
 
 # Async and communication
 asyncio-mqtt==0.13.0
@@ -45,3 +52,6 @@ pytest-mock==3.11.1
 black==23.7.0
 flake8==6.0.0
 mypy==1.4.1
+
+# Docker integration
+docker==6.1.3

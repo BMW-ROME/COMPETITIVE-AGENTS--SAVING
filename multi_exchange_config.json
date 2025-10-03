@@ -1,0 +1,45 @@
+{
+  "exchanges": {
+    "primary": "alpaca",
+    "secondary": [
+      "binance",
+      "coinbase"
+    ],
+    "crypto": [
+      "binance",
+      "coinbase",
+      "kraken"
+    ],
+    "forex": [
+      "interactive_brokers",
+      "alpaca"
+    ],
+    "stocks": [
+      "alpaca",
+      "interactive_brokers"
+    ]
+  },
+  "geographic_compliance": {
+    "us_traders": [
+      "alpaca",
+      "coinbase",
+      "interactive_brokers"
+    ],
+    "global_traders": [
+      "binance",
+      "kraken",
+      "interactive_brokers"
+    ],
+    "restricted_regions": {
+      "binance": [
+        "US"
+      ],
+      "kraken": []
+    }
+  },
+  "risk_management": {
+    "max_exchanges_per_asset": 2,
+    "cross_exchange_arbitrage": true,
+    "liquidity_threshold": 10000
+  }
+}

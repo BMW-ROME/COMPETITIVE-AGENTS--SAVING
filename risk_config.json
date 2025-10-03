@@ -1,0 +1,28 @@
+{
+  "trading_parameters": {
+    "max_trade_value": 12.542300000000001,
+    "max_position_pct": 0.05,
+    "max_total_exposure": 0.4,
+    "min_execution_threshold": 0.6,
+    "position_size_multiplier": 0.4,
+    "aggressive_exits": true,
+    "risk_level": "MINIMAL",
+    "buying_power_ratio": 0.013866947050469638,
+    "timestamp": "2025-10-01T00:07:24.168260",
+    "account_equity": 90447.45,
+    "available_buying_power": 1254.23
+  },
+  "risk_profile": {
+    "risk_level": "MINIMAL",
+    "buying_power_ratio": 0.013866947050469638,
+    "buying_power": 1254.23,
+    "equity": 90447.45,
+    "is_pattern_day_trader": true
+  },
+  "account_snapshot": {
+    "equity": 90447.45,
+    "buying_power": 1254.23,
+    "day_trading_power": 1254.23,
+    "pattern_day_trader": true
+  }
+}

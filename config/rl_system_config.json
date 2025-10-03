@@ -1,0 +1,33 @@
+{
+  "rl_system_settings": {
+    "execution_target_rate": 0.99,
+    "learning_rate": 0.1,
+    "exploration_rate": 0.15,
+    "capital_safety_margin": 0.95,
+    "wash_trade_delay_seconds": 30,
+    "volatility_threshold": 0.03,
+    "liquidity_minimum_volume": 100000
+  },
+  "execution_optimization": {
+    "enable_barrier_prediction": true,
+    "enable_timing_optimization": true,
+    "enable_quantity_optimization": true,
+    "enable_symbol_filtering": true
+  },
+  "monitoring": {
+    "log_rl_decisions": true,
+    "track_execution_probability": true,
+    "generate_performance_reports": true,
+    "alert_on_low_execution_rate": 0.8
+  },
+  "deployment_info": {
+    "deployment_date": "2025-09-30T14:11:00.766553",
+    "version": "1.0.0",
+    "systems_enhanced": [
+      "alpaca_paper_trading_maximal.py",
+      "continuous_competitive_trading.py",
+      "continuous_paper_trading.py",
+      "continuous_live_trading.py"
+    ]
+  }
+}

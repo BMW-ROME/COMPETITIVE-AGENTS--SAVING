@@ -1,0 +1,82 @@
+# Maximal Alpaca Paper Trading Docker Image - Full Power, Zero Errors
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install comprehensive system dependencies (fixed for Debian Trixie)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    build-essential \
+    curl \
+    wget \
+    git \
+    pkg-config \
+    libssl-dev \
+    libffi-dev \
+    libblas-dev \
+    liblapack-dev \
+    libopenblas-dev \
+    gfortran \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install build tools
+RUN pip install --upgrade pip setuptools wheel
+
+# Install maximal dependencies in optimal order (avoiding conflicts)
+RUN pip install --no-cache-dir \
+    numpy==1.24.4 \
+    pandas==2.0.3
+
+RUN pip install --no-cache-dir \
+    python-dotenv==1.0.0 \
+    requests==2.31.0 \
+    urllib3==1.26.18
+
+RUN pip install --no-cache-dir \
+    aiohttp==3.8.6 \
+    websockets==11.0.3 \
+    websocket-client==1.6.4
+
+RUN pip install --no-cache-dir \
+    alpaca-trade-api==3.1.1
+
+# Install additional powerful libraries (excluding problematic ones)
+RUN pip install --no-cache-dir \
+    scikit-learn==1.3.2 \
+    matplotlib==3.7.5 \
+    seaborn==0.13.0 \
+    plotly==5.17.0 \
+    yfinance==0.2.28 \
+    flask==3.0.0 \
+    dash==2.16.1 \
+    redis==5.0.1 \
+    psycopg2-binary==2.9.9
+
+# Copy all application files
+COPY alpaca_paper_trading_maximal.py .
+COPY continuous_trading_system.py .
+COPY monitoring_dashboard.py .
+COPY health_check.py .
+
+# Create comprehensive directories
+RUN mkdir -p /app/logs /app/data /app/reports /app/models /app/cache /app/backups
+
+# Set environment variables for maximum performance
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONOPTIMIZE=2
+ENV TRADING_MODE=ALPACA_MAXIMAL
+ENV NUMBA_CACHE_DIR=/app/cache
+ENV MPLCONFIGDIR=/app/cache
+
+# Expose multiple ports for comprehensive services
+EXPOSE 8000 8001 8002 8003
+
+# Comprehensive health check
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=5 \
+    CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=10)" || exit 1
+
+# Default command
+CMD ["python", "alpaca_paper_trading_maximal.py"]

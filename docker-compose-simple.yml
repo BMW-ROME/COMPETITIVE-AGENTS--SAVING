@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Simple Alpaca Paper Trading System
+  alpaca-paper-trading:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    container_name: alpaca-paper-trading
+    environment:
+      - TRADING_MODE=ALPACA_PAPER
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - ALPACA_API_KEY=${ALPACA_API_KEY:-PKK43GTIACJNUPGZPCPF}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY:-your_secret_key_here}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL:-https://paper-api.alpaca.markets}
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - trading-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Background Simulation (simplified)
+  simulation-trading:
+    build:
+      context: .
+      dockerfile: Dockerfile.simple
+    container_name: simulation-trading
+    environment:
+      - TRADING_MODE=SIMULATION
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./reports:/app/reports
+    command: python continuous_trading_system.py
+    restart: unless-stopped
+    networks:
+      - trading-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # Lightweight Log Monitor
+  log-monitor:
+    image: alpine:latest
+    container_name: trading-log-monitor
+    volumes:
+      - ./logs:/logs:ro
+    command: >
+      sh -c "
+        while true; do
+          echo '====== ALPACA TRADING STATUS ======' &&
+          date &&
+          echo '' &&
+          if [ -f /logs/alpaca_paper_trading.log ]; then
+            echo '=== Recent Alpaca Activity ===' &&
+            tail -n 5 /logs/alpaca_paper_trading.log | grep -E 'REAL PAPER TRADE|Portfolio Value|AGENT DECISIONS' &&
+            echo '' &&
+            TRADES=\$$(grep -c 'REAL PAPER TRADE' /logs/alpaca_paper_trading.log 2>/dev/null || echo '0') &&
+            echo 'Total Trades: '\$$TRADES
+          else
+            echo 'Waiting for Alpaca logs...'
+          fi &&
+          echo '===================================' &&
+          sleep 180
+        done
+      "
+    restart: unless-stopped
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge

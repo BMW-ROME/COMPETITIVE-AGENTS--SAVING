@@ -1,0 +1,115 @@
+{
+  "timestamp": "2025-10-01T16:36:05.750046",
+  "stats": {
+    "start_time": "2025-10-01 16:36:03.888248",
+    "total_cycles": 0,
+    "total_decisions": 0,
+    "total_trades_attempted": 0,
+    "total_trades_executed": 0,
+    "total_pnl": 0.0,
+    "initial_buying_power": 0.0,
+    "current_buying_power": 0.0,
+    "best_agent": "",
+    "active_positions": 0
+  },
+  "agent_performance": {
+    "micro_conservative_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "micro_conservative_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "continuous_balanced_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "continuous_balanced_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "momentum_rider_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "momentum_rider_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "quick_scalper_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "quick_scalper_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "opportunity_hunter_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "opportunity_hunter_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "adaptive_learner_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "adaptive_learner_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    }
+  },
+  "current_positions": {},
+  "cycle_count": 0
+}

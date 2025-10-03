@@ -11,6 +11,7 @@ from dataclasses import dataclass, asdict
 import pandas as pd
 
 from src.base_agent import BaseTradingAgent, PerformanceMetrics, TradeDecision
+from src.persistence import SQLitePersistence
 from config.settings import HierarchyConfig, SystemConfig
 
 @dataclass
@@ -35,9 +36,16 @@ class HierarchyManager:
         self.agents: Dict[str, BaseTradingAgent] = {}
         self.agent_reports: Dict[str, List[AgentReport]] = {}
         self.performance_history: Dict[str, List[PerformanceMetrics]] = {}
+        # Suspension state
+        self.fail_streaks: Dict[str, int] = {}
+        self.suspension_levels: Dict[str, int] = {}
+        self.suspended: Dict[str, Dict[str, Any]] = {}
         
         # Logging
         self.logger = logging.getLogger("HierarchyManager")
+
+        # Persistence
+        self.db: Optional[SQLitePersistence] = None
         
         # Performance tracking
         self.overall_performance = {
@@ -52,7 +60,12 @@ class HierarchyManager:
         self.agents[agent.agent_id] = agent
         self.agent_reports[agent.agent_id] = []
         self.performance_history[agent.agent_id] = []
+        self.fail_streaks[agent.agent_id] = 0
+        self.suspension_levels[agent.agent_id] = 0
         self.logger.info(f"Registered agent: {agent.agent_id}")
+
+    def attach_persistence(self, persistence: SQLitePersistence) -> None:
+        self.db = persistence
     
     async def collect_agent_reports(self) -> Dict[str, AgentReport]:
         """Collect reports from all registered agents."""
@@ -293,12 +306,76 @@ class HierarchyManager:
             
             # Update overall performance tracking
             self._update_overall_performance(evaluation)
+
+            # Apply suspensions or lifts based on streaks and system profitability milestones
+            self._apply_suspension_policy()
             
         except Exception as e:
             self.logger.error(f"Error in oversight cycle: {e}")
             cycle_result["error"] = str(e)
         
         return cycle_result
+
+    def record_trade_outcome(self, agent_id: str, trade_return: float, system_profitable_trades: int) -> None:
+        """Update fail streaks and manage suspension lift counters."""
+        try:
+            if trade_return is None:
+                return
+            # Update fail streaks
+            if trade_return <= 0:
+                self.fail_streaks[agent_id] = self.fail_streaks.get(agent_id, 0) + 1
+            else:
+                self.fail_streaks[agent_id] = 0
+
+            # Decrement suspension lift counters for ALL suspended agents on each profitable system trade
+            if trade_return > 0 and self.suspended:
+                for suspended_agent_id, info in list(self.suspended.items()):
+                    remaining = max(0, info.get("profit_trades_remaining", 0) - 1)
+                    info["profit_trades_remaining"] = remaining
+                    self.suspended[suspended_agent_id] = info
+                    if self.db:
+                        self.db.log_suspension_event(
+                            suspended_agent_id,
+                            "lift_progress",
+                            info.get("level", 0),
+                            reason="system_profitable_trade",
+                            profit_trades_required=info.get("profit_trades_required", 0),
+                            profit_trades_remaining=remaining,
+                        )
+        except Exception as e:
+            self.logger.warning(f"record_trade_outcome error: {e}")
+
+    def _apply_suspension_policy(self) -> None:
+        """Suspend agents with 2 consecutive losses; lift after 4,8,12... profitable system trades."""
+        try:
+            for agent_id in list(self.agents.keys()):
+                # Trigger suspension
+                if self.fail_streaks.get(agent_id, 0) >= 2 and agent_id not in self.suspended:
+                    level = self.suspension_levels.get(agent_id, 0) + 1
+                    required = 4 * level
+                    self.suspended[agent_id] = {
+                        "level": level,
+                        "profit_trades_required": required,
+                        "profit_trades_remaining": required,
+                        "since": datetime.now(),
+                    }
+                    self.suspension_levels[agent_id] = level
+                    self.logger.warning(f"Agent {agent_id} suspended at level {level} after {self.fail_streaks.get(agent_id)} consecutive losses")
+                    if self.db:
+                        self.db.log_suspension_event(agent_id, "suspend", level, reason="two_consecutive_losses", profit_trades_required=required, profit_trades_remaining=required)
+
+                # Lift suspension when remaining hits zero
+                if agent_id in self.suspended:
+                    info = self.suspended[agent_id]
+                    if info.get("profit_trades_remaining", 1) <= 0:
+                        self.logger.info(f"Lifting suspension for {agent_id} at level {info.get('level')}")
+                        if self.db:
+                            self.db.log_suspension_event(agent_id, "lift", info.get("level", 0), reason="milestone_reached")
+                        self.suspended.pop(agent_id, None)
+                        # Reset fail streak to avoid immediate re-suspension
+                        self.fail_streaks[agent_id] = 0
+        except Exception as e:
+            self.logger.warning(f"_apply_suspension_policy error: {e}")
     
     def _update_overall_performance(self, evaluation: Dict[str, Any]) -> None:
         """Update overall system performance metrics."""

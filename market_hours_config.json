@@ -1,0 +1,79 @@
+{
+  "markets": {
+    "stocks": {
+      "us": {
+        "open": "09:30",
+        "close": "16:00",
+        "timezone": "EST",
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday"
+        ]
+      },
+      "premarket": {
+        "open": "04:00",
+        "close": "09:30",
+        "timezone": "EST",
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday"
+        ]
+      },
+      "afterhours": {
+        "open": "16:00",
+        "close": "20:00",
+        "timezone": "EST",
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday"
+        ]
+      }
+    },
+    "crypto": {
+      "24_7": {
+        "open": "00:00",
+        "close": "23:59",
+        "timezone": "UTC",
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ]
+      }
+    },
+    "forex": {
+      "24_5": {
+        "open": "00:00",
+        "close": "23:59",
+        "timezone": "UTC",
+        "days": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday"
+        ]
+      }
+    }
+  },
+  "strategies": {
+    "premarket": "conservative_analysis",
+    "regular_hours": "full_aggressive",
+    "afterhours": "news_sentiment",
+    "crypto_24_7": "momentum_breakout",
+    "forex_24_5": "carry_trade"
+  }
+}

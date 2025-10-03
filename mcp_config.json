@@ -1,0 +1,53 @@
+{
+  "mcpServers": {
+    "gordon-assistant": {
+      "command": "python",
+      "args": ["mcp_models/gordon/model_server.py"],
+      "env": {
+        "PORT": "8001"
+      }
+    },
+    "llama2-7b": {
+      "command": "python", 
+      "args": ["mcp_models/llama2/model_server.py"],
+      "env": {
+        "PORT": "8002"
+      }
+    },
+    "mistral-7b": {
+      "command": "python",
+      "args": ["mcp_models/mistral/model_server.py"],
+      "env": {
+        "PORT": "8003"
+      }
+    },
+    "codellama-7b": {
+      "command": "python",
+      "args": ["mcp_models/codellama/model_server.py"],
+      "env": {
+        "PORT": "8004"
+      }
+    },
+    "financial-llm": {
+      "command": "python",
+      "args": ["mcp_models/financial/model_server.py"],
+      "env": {
+        "PORT": "8005"
+      }
+    },
+    "sentiment-analyzer": {
+      "command": "python",
+      "args": ["mcp_models/sentiment/model_server.py"],
+      "env": {
+        "PORT": "8006"
+      }
+    },
+    "risk-analyzer": {
+      "command": "python",
+      "args": ["mcp_models/risk/model_server.py"],
+      "env": {
+        "PORT": "8007"
+      }
+    }
+  }
+}

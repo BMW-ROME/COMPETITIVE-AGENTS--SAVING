@@ -1,0 +1,37 @@
+# Cursor Rules for Ultimate Trading System
+# ======================================
+
+# This file configures Cursor's behavior for the Ultimate Trading System project.
+
+# Project Type
+project_type: "trading_system"
+
+# Key Directories
+src_directories:
+  - "src/"
+  - "config/"
+  - "mcp_models/"
+
+# Key Files
+important_files:
+  - "src/system_orchestrator.py"
+  - "src/mcp_integration_simple.py"
+  - "docker-compose-mcp.yml"
+  - "continuous_real_alpaca_trading.py"
+
+# MCP Integration
+mcp_enabled: true
+mcp_models:
+  - "gordon"
+  - "llama2"
+  - "mistral"
+  - "codellama"
+  - "financial"
+  - "sentiment"
+  - "risk"
+
+# Trading System Configuration
+trading_agents: 11
+ai_models: 7
+alpaca_integration: true
+real_time_trading: true

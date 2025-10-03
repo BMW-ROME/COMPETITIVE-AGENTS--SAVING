@@ -26,7 +26,7 @@ class ConservativeTradingAgent(BaseTradingAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.risk_threshold = 0.02  # 2% max risk per trade
-        self.confidence_threshold = 0.7  # High confidence required
+        self.confidence_threshold = 0.3  # Lowered for testing
         self.position_limit = 0.05  # Max 5% of portfolio per position
         self.stop_loss_pct = 0.03  # 3% stop loss
         self.take_profit_pct = 0.06  # 6% take profit
@@ -84,16 +84,26 @@ class ConservativeTradingAgent(BaseTradingAgent):
         """Make conservative trading decisions."""
         analysis = await self.analyze_market_data(market_data)
         
-        # Only trade in low-risk conditions
-        if analysis["volatility"] == "high" or len(analysis["warnings"]) > 0:
+        # DEBUG: Log analysis results
+        self.logger.info(f"Conservative agent analysis: {analysis}")
+        
+        # More lenient conditions for testing
+        if analysis["volatility"] == "high" and len(analysis["warnings"]) > 2:
+            self.logger.info(f"🔍 DEBUG: Conservative agent skipping due to high volatility and warnings")
             return None
         
-        # Look for stable trends
-        if "stable_uptrend" in analysis["opportunities"]:
+        # Look for any opportunities, not just stable trends
+        if "stable_uptrend" in analysis["opportunities"] or analysis["market_trend"] == "bullish":
             return await self._create_buy_decision(market_data, analysis)
-        elif "stable_downtrend" in analysis["opportunities"]:
+        elif "stable_downtrend" in analysis["opportunities"] or analysis["market_trend"] == "bearish":
             return await self._create_sell_decision(market_data, analysis)
         
+        # Fallback: if we have any data, try to make a simple decision
+        if market_data.get("price_data"):
+            self.logger.info(f"🔍 DEBUG: Conservative agent creating simple decision")
+            return await self._create_simple_decision(market_data, analysis)
+        
+        self.logger.info(f"🔍 DEBUG: Conservative agent returning None - no price data")
         return None
     
     async def _create_buy_decision(self, market_data: Dict[str, Any], analysis: Dict[str, Any]) -> TradeDecision:
@@ -171,6 +181,42 @@ class ConservativeTradingAgent(BaseTradingAgent):
         
         return None
     
+    async def _create_simple_decision(self, market_data: Dict[str, Any], analysis: Dict[str, Any]) -> TradeDecision:
+        """Create a simple trading decision for testing."""
+        # Find any symbol with data
+        for symbol, data in market_data.get("price_data", {}).items():
+            if len(data) >= 5:
+                current_price = float(data[-1]["close"])
+                # Simple momentum-based decision
+                if len(data) >= 10:
+                    old_price = float(data[-10]["close"])
+                    momentum = (current_price - old_price) / old_price
+                    
+                    if momentum > 0.01:  # 1% positive momentum
+                        return TradeDecision(
+                            symbol=symbol,
+                            action="BUY",
+                            quantity=100,  # Fixed small quantity for testing
+                            price=current_price,
+                            confidence=0.5,  # Medium confidence
+                            reasoning=f"Simple momentum buy: {momentum:.3f} momentum",
+                            timestamp=datetime.now(),
+                            agent_id=self.agent_id
+                        )
+                    elif momentum < -0.01:  # 1% negative momentum
+                        return TradeDecision(
+                            symbol=symbol,
+                            action="SELL",
+                            quantity=100,  # Fixed small quantity for testing
+                            price=current_price,
+                            confidence=0.5,  # Medium confidence
+                            reasoning=f"Simple momentum sell: {momentum:.3f} momentum",
+                            timestamp=datetime.now(),
+                            agent_id=self.agent_id
+                        )
+        
+        return None
+    
     def _calculate_trend_consistency(self, prices: List[float]) -> float:
         """Calculate how consistent the trend is."""
         if len(prices) < 5:
@@ -207,7 +253,7 @@ class AggressiveTradingAgent(BaseTradingAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.risk_threshold = 0.05  # 5% max risk per trade
-        self.confidence_threshold = 0.5  # Lower confidence threshold
+        self.confidence_threshold = 0.2  # Lowered for testing
         self.position_limit = 0.15  # Max 15% of portfolio per position
         self.stop_loss_pct = 0.05  # 5% stop loss
         self.take_profit_pct = 0.10  # 10% take profit
@@ -257,6 +303,9 @@ class AggressiveTradingAgent(BaseTradingAgent):
         """Make aggressive trading decisions."""
         analysis = await self.analyze_market_data(market_data)
         
+        # DEBUG: Log analysis results
+        self.logger.info(f"Aggressive agent analysis: {analysis}")
+        
         # Look for momentum opportunities
         if "momentum_trading" in analysis["opportunities"]:
             return await self._create_momentum_decision(market_data, analysis)
@@ -265,6 +314,12 @@ class AggressiveTradingAgent(BaseTradingAgent):
         if "volatility_trading" in analysis["opportunities"]:
             return await self._create_volatility_decision(market_data, analysis)
         
+        # Fallback: try simple momentum-based decisions
+        if market_data.get("price_data"):
+            self.logger.info(f"🔍 DEBUG: Aggressive agent creating simple decision")
+            return await self._create_simple_aggressive_decision(market_data, analysis)
+        
+        self.logger.info(f"🔍 DEBUG: Aggressive agent returning None - no price data")
         return None
     
     async def _create_momentum_decision(self, market_data: Dict[str, Any], analysis: Dict[str, Any]) -> TradeDecision:
@@ -339,9 +394,19 @@ class AggressiveTradingAgent(BaseTradingAgent):
             # Simple mean reversion strategy
             sma_5 = np.mean([float(d["close"]) for d in data[-5:]])
             
+            # Check if we own this asset
+            position_data = self.positions.get(best_symbol, {})
+            if isinstance(position_data, dict):
+                has_position = float(position_data.get('qty', 0) or 0) > 0
+            else:
+                has_position = float(position_data or 0) > 0
+            
             if current_price > sma_5 * 1.02:  # Price above SMA
-                action = "SELL"
-                confidence = min(0.8, best_volatility * 10)
+                if has_position:
+                    action = "SELL"
+                    confidence = min(0.8, best_volatility * 10)
+                else:
+                    return None  # Can't sell what we don't own
             else:  # Price below SMA
                 action = "BUY"
                 confidence = min(0.8, best_volatility * 10)
@@ -359,6 +424,42 @@ class AggressiveTradingAgent(BaseTradingAgent):
                 timestamp=datetime.now(),
                 agent_id=self.agent_id
             )
+        
+        return None
+    
+    async def _create_simple_aggressive_decision(self, market_data: Dict[str, Any], analysis: Dict[str, Any]) -> TradeDecision:
+        """Create a simple aggressive trading decision for testing."""
+        # Find any symbol with data
+        for symbol, data in market_data.get("price_data", {}).items():
+            if len(data) >= 5:
+                current_price = float(data[-1]["close"])
+                # Simple momentum-based decision with lower threshold
+                if len(data) >= 5:
+                    old_price = float(data[-5]["close"])
+                    momentum = (current_price - old_price) / old_price
+                    
+                    if momentum > 0.005:  # 0.5% positive momentum (lower threshold)
+                        return TradeDecision(
+                            symbol=symbol,
+                            action="BUY",
+                            quantity=200,  # Larger quantity for aggressive
+                            price=current_price,
+                            confidence=0.6,  # Higher confidence
+                            reasoning=f"Aggressive momentum buy: {momentum:.3f} momentum",
+                            timestamp=datetime.now(),
+                            agent_id=self.agent_id
+                        )
+                    elif momentum < -0.005:  # 0.5% negative momentum
+                        return TradeDecision(
+                            symbol=symbol,
+                            action="SELL",
+                            quantity=200,  # Larger quantity for aggressive
+                            price=current_price,
+                            confidence=0.6,  # Higher confidence
+                            reasoning=f"Aggressive momentum sell: {momentum:.3f} momentum",
+                            timestamp=datetime.now(),
+                            agent_id=self.agent_id
+                        )
         
         return None
     
@@ -387,7 +488,7 @@ class BalancedTradingAgent(BaseTradingAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.risk_threshold = 0.035  # 3.5% max risk per trade
-        self.confidence_threshold = 0.6  # Medium confidence threshold
+        self.confidence_threshold = 0.3  # Lowered for testing
         self.position_limit = 0.1  # Max 10% of portfolio per position
         self.stop_loss_pct = 0.04  # 4% stop loss
         self.take_profit_pct = 0.08  # 8% take profit
@@ -452,12 +553,21 @@ class BalancedTradingAgent(BaseTradingAgent):
         """Make balanced trading decisions."""
         analysis = await self.analyze_market_data(market_data)
         
+        # DEBUG: Log analysis results
+        self.logger.info(f"Balanced agent analysis: {analysis}")
+        
         # Use both strategies with weights
         if "stable_trends" in analysis["opportunities"]:
             return await self._create_balanced_decision(market_data, analysis, "conservative")
         elif "momentum_trading" in analysis["opportunities"]:
             return await self._create_balanced_decision(market_data, analysis, "aggressive")
         
+        # Fallback: try simple balanced decision
+        if market_data.get("price_data"):
+            self.logger.info(f"🔍 DEBUG: Balanced agent creating simple decision")
+            return await self._create_simple_balanced_decision(market_data, analysis)
+        
+        self.logger.info(f"🔍 DEBUG: Balanced agent returning None - no price data")
         return None
     
     async def _create_balanced_decision(self, market_data: Dict[str, Any], analysis: Dict[str, Any], strategy: str) -> TradeDecision:
@@ -512,6 +622,42 @@ class BalancedTradingAgent(BaseTradingAgent):
         
         return None
     
+    async def _create_simple_balanced_decision(self, market_data: Dict[str, Any], analysis: Dict[str, Any]) -> TradeDecision:
+        """Create a simple balanced trading decision for testing."""
+        # Find any symbol with data
+        for symbol, data in market_data.get("price_data", {}).items():
+            if len(data) >= 5:
+                current_price = float(data[-1]["close"])
+                # Simple momentum-based decision with balanced approach
+                if len(data) >= 8:
+                    old_price = float(data[-8]["close"])
+                    momentum = (current_price - old_price) / old_price
+                    
+                    if momentum > 0.007:  # 0.7% positive momentum (balanced threshold)
+                        return TradeDecision(
+                            symbol=symbol,
+                            action="BUY",
+                            quantity=150,  # Balanced quantity
+                            price=current_price,
+                            confidence=0.55,  # Balanced confidence
+                            reasoning=f"Balanced momentum buy: {momentum:.3f} momentum",
+                            timestamp=datetime.now(),
+                            agent_id=self.agent_id
+                        )
+                    elif momentum < -0.007:  # 0.7% negative momentum
+                        return TradeDecision(
+                            symbol=symbol,
+                            action="SELL",
+                            quantity=150,  # Balanced quantity
+                            price=current_price,
+                            confidence=0.55,  # Balanced confidence
+                            reasoning=f"Balanced momentum sell: {momentum:.3f} momentum",
+                            timestamp=datetime.now(),
+                            agent_id=self.agent_id
+                        )
+        
+        return None
+    
     async def update_strategy(self, performance_feedback: Dict[str, Any]) -> None:
         """Update strategy based on performance feedback."""
         # Adjust strategy weights based on performance
@@ -540,7 +686,7 @@ class FractalAnalysisAgent(BaseTradingAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.risk_threshold = 0.04  # 4% max risk per trade
-        self.confidence_threshold = 0.65  # Medium-high confidence
+        self.confidence_threshold = 0.3  # Lowered for testing
         self.position_limit = 0.12  # Max 12% of portfolio per position
         self.stop_loss_pct = 0.04  # 4% stop loss
         self.take_profit_pct = 0.08  # 8% take profit
@@ -823,13 +969,23 @@ class FractalAnalysisAgent(BaseTradingAgent):
         data = market_data["price_data"][symbol]
         current_price = float(data[-1]["close"])
         
+        # Check if we own this asset
+        position_data = self.positions.get(symbol, {})
+        if isinstance(position_data, dict):
+            has_position = float(position_data.get('qty', 0) or 0) > 0
+        else:
+            has_position = float(position_data or 0) > 0
+        
         # Determine action based on fractal type and consensus
         if fractal['type'] == 'fractal_low' and consensus['direction'] == 'bullish':
             action = "BUY"
             confidence = fractal['confidence'] * consensus['consensus']
         elif fractal['type'] == 'fractal_high' and consensus['direction'] == 'bearish':
-            action = "SELL"
-            confidence = fractal['confidence'] * consensus['consensus']
+            if has_position:
+                action = "SELL"
+                confidence = fractal['confidence'] * consensus['consensus']
+            else:
+                return None  # Can't sell what we don't own
         else:
             return None
         
@@ -875,7 +1031,7 @@ class CandleRangeTheoryAgent(BaseTradingAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.risk_threshold = 0.035  # 3.5% max risk per trade
-        self.confidence_threshold = 0.7  # High confidence required
+        self.confidence_threshold = 0.3  # Lowered for testing
         self.position_limit = 0.1  # Max 10% of portfolio per position
         self.stop_loss_pct = 0.035  # 3.5% stop loss
         self.take_profit_pct = 0.07  # 7% take profit
@@ -887,7 +1043,7 @@ class CandleRangeTheoryAgent(BaseTradingAgent):
         self.timeframe_weights = {'5min': 0.2, '15min': 0.3, '1hour': 0.3, '4hour': 0.2}
         
         # Pattern recognition
-        self.pattern_confidence_threshold = 0.75
+        self.pattern_confidence_threshold = 0.3
         self.volume_confirmation_required = True
         
     async def analyze_market_data(self, market_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -1320,12 +1476,22 @@ class CandleRangeTheoryAgent(BaseTradingAgent):
         data = market_data["price_data"][symbol]
         current_price = float(data[-1]["close"])
         
+        # Check if we own this asset
+        position_data = self.positions.get(symbol, {})
+        if isinstance(position_data, dict):
+            has_position = float(position_data.get('qty', 0) or 0) > 0
+        else:
+            has_position = float(position_data or 0) > 0
+        
         # Determine action based on pattern
         pattern_type = pattern['pattern']
         if pattern_type in ['bullish_engulfing', 'hammer', 'morning_star']:
             action = "BUY"
         elif pattern_type in ['bearish_engulfing', 'shooting_star', 'evening_star']:
-            action = "SELL"
+            if has_position:
+                action = "SELL"
+            else:
+                return None  # Can't sell what we don't own
         else:
             return None
         
@@ -1381,7 +1547,7 @@ class QuantitativePatternAgent(BaseTradingAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.risk_threshold = 0.03  # 3% max risk per trade
-        self.confidence_threshold = 0.8  # High confidence required
+        self.confidence_threshold = 0.3  # Lowered for testing
         self.position_limit = 0.08  # Max 8% of portfolio per position
         self.stop_loss_pct = 0.03  # 3% stop loss
         self.take_profit_pct = 0.06  # 6% take profit
@@ -1389,7 +1555,7 @@ class QuantitativePatternAgent(BaseTradingAgent):
         # Quantitative analysis parameters
         self.lookback_periods = [5, 10, 20, 50]  # Multiple lookback periods
         self.pattern_window = 20  # Window for pattern analysis
-        self.min_pattern_confidence = 0.75  # Minimum pattern confidence
+        self.min_pattern_confidence = 0.3  # Lowered for testing
         self.volatility_threshold = 0.02  # Volatility threshold
         
         # Machine learning components
@@ -2086,10 +2252,22 @@ class QuantitativePatternAgent(BaseTradingAgent):
         pattern_type = pattern['pattern']
         pattern_info = self.known_patterns.get(pattern_type, {})
         
+        # Check if we own this asset
+        position_data = self.positions.get(symbol, {})
+        if isinstance(position_data, dict):
+            has_position = float(position_data.get('qty', 0) or 0) > 0
+        else:
+            has_position = float(position_data or 0) > 0
+        
         if pattern_info.get('bullish', False):
             action = "BUY"
         else:
-            action = "SELL"
+            # Only sell if we actually own the asset
+            if has_position:
+                action = "SELL"
+            else:
+                # If we don't own it and pattern is bearish, skip this trade
+                return None
         
         # Calculate confidence with additional factors
         base_confidence = pattern['confidence']

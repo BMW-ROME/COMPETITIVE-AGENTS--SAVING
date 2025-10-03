@@ -1,0 +1,24 @@
+{
+  "timestamp": "2025-09-21T23:26:37.688015",
+  "symbols": [
+    "AAPL",
+    "GOOGL",
+    "MSFT",
+    "TSLA",
+    "AMZN"
+  ],
+  "price_data_points": {
+    "AAPL": 50,
+    "GOOGL": 50,
+    "MSFT": 50,
+    "TSLA": 50,
+    "AMZN": 50
+  },
+  "technical_indicators": [
+    "AAPL",
+    "GOOGL",
+    "MSFT",
+    "TSLA",
+    "AMZN"
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "timestamp": "2025-10-01T05:18:15.166781",
+  "stats": {
+    "start_time": "2025-10-01 05:05:02.943104",
+    "total_cycles": 8,
+    "total_decisions": 55,
+    "total_trades_attempted": 0,
+    "total_trades_executed": 0,
+    "total_pnl": 0.0,
+    "initial_buying_power": 1254.23,
+    "current_buying_power": 1254.23,
+    "best_agent": "",
+    "active_positions": 9
+  },
+  "agent_performance": {
+    "micro_conservative_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "micro_conservative_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "continuous_balanced_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "continuous_balanced_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "momentum_rider_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "momentum_rider_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "quick_scalper_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "quick_scalper_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "opportunity_hunter_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "opportunity_hunter_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "adaptive_learner_1": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    },
+    "adaptive_learner_2": {
+      "total_trades": 0,
+      "successful_trades": 0,
+      "total_pnl": 0.0,
+      "last_trade_time": null,
+      "win_rate": 0.0,
+      "confidence": 0.5
+    }
+  },
+  "current_positions": {
+    "AAPL": {
+      "quantity": 713.701804546,
+      "market_value": 181729.890492,
+      "avg_entry_price": 254.380088,
+      "current_price": 254.63,
+      "pnl": 178.362799,
+      "side": "long"
+    },
+    "GOOGL": {
+      "quantity": 53.665091379,
+      "market_value": 13045.983714,
+      "avg_entry_price": 241.017132,
+      "current_price": 243.1,
+      "pnl": 111.777327,
+      "side": "long"
+    },
+    "META": {
+      "quantity": 16.6117,
+      "market_value": 12199.300246,
+      "avg_entry_price": 740.070287,
+      "current_price": 734.38,
+      "pnl": -94.525345,
+      "side": "long"
+    },
+    "MSFT": {
+      "quantity": 0.459180681,
+      "market_value": 237.832634,
+      "avg_entry_price": 515.045887,
+      "current_price": 517.95,
+      "pnl": 1.333513,
+      "side": "long"
+    },
+    "NFLX": {
+      "quantity": 16.5345,
+      "market_value": 19823.54274,
+      "avg_entry_price": 1202.364312,
+      "current_price": 1198.92,
+      "pnl": -56.949985,
+      "side": "long"
+    },
+    "NVDA": {
+      "quantity": 289.7809,
+      "market_value": 54067.320322,
+      "avg_entry_price": 182.241297,
+      "current_price": 186.58,
+      "pnl": 1257.273393,
+      "side": "long"
+    },
+    "QQQ": {
+      "quantity": 23.377815208,
+      "market_value": 14035.338916,
+      "avg_entry_price": 598.272534,
+      "current_price": 600.37,
+      "pnl": 49.034171,
+      "side": "long"
+    },
+    "SPY": {
+      "quantity": 39.153663652,
+      "market_value": 26083.387652,
+      "avg_entry_price": 664.621267,
+      "current_price": 666.18,
+      "pnl": 61.030125,
+      "side": "long"
+    },
+    "TSLA": {
+      "quantity": 87.864909634,
+      "market_value": 39075.282612,
+      "avg_entry_price": 441.928199,
+      "current_price": 444.72,
+      "pnl": 245.301378,
+      "side": "long"
+    }
+  },
+  "cycle_count": 8
+}

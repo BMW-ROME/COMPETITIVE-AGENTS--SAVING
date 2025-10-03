@@ -1,0 +1,45 @@
+# Alpaca Paper Trading - Docker Deployment
+# Windows CMD Commands
+
+# Navigate to your project directory first:
+# cd C:\path\to\your\competitive-trading-agents
+
+# 1. BUILD THE DOCKER IMAGE
+docker build -f Dockerfile.alpaca -t alpaca-paper-trading .
+
+# 2. START THE FULL SYSTEM (Alpaca + Simulation + Monitoring)
+docker-compose -f docker-compose-local.yml up -d
+
+# 3. VIEW LIVE LOGS FROM ALPACA SYSTEM
+docker logs -f alpaca-paper-trading
+
+# 4. VIEW LIVE LOGS FROM LOG MONITOR
+docker logs -f trading-log-monitor
+
+# 5. CHECK SYSTEM STATUS
+docker-compose -f docker-compose-local.yml ps
+
+# 6. STOP THE SYSTEM
+docker-compose -f docker-compose-local.yml down
+
+# 7. RESTART JUST THE ALPACA CONTAINER
+docker-compose -f docker-compose-local.yml restart alpaca-paper-trading
+
+# 8. VIEW CONTAINER LOGS
+docker logs alpaca-paper-trading --tail 50 -f
+
+# 9. ACCESS CONTAINER SHELL (for debugging)
+docker exec -it alpaca-paper-trading /bin/bash
+
+# 10. REMOVE EVERYTHING AND CLEAN UP
+docker-compose -f docker-compose-local.yml down -v
+docker rmi alpaca-paper-trading
+
+# QUICK START (One command to run everything):
+# docker-compose -f docker-compose-local.yml up -d && docker logs -f alpaca-paper-trading
+
+# MONITORING COMMANDS:
+# - View trading statistics: docker logs trading-log-monitor
+# - Check Alpaca activity: docker logs alpaca-paper-trading | grep "REAL PAPER TRADE"
+# - See agent decisions: docker logs alpaca-paper-trading | grep "AGENT DECISIONS"
+# - Monitor positions: docker logs alpaca-paper-trading | grep "Portfolio Value"

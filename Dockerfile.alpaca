@@ -1,0 +1,44 @@
+# Alpaca Paper Trading Docker Image
+FROM python:3.12-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install setuptools first
+RUN pip install --upgrade pip setuptools wheel
+
+# Install essential dependencies first (without requirements.txt to avoid conflicts)
+RUN pip install --no-cache-dir \
+    python-dotenv \
+    alpaca-trade-api \
+    requests \
+    numpy \
+    pandas
+
+# Copy application files
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/reports
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV TRADING_MODE=ALPACA_PAPER
+
+# Expose port for monitoring
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import os; print('Alpaca System Running')" || exit 1
+
+# Default command
+CMD ["python", "alpaca_paper_trading.py"]

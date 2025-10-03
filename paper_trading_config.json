@@ -1,0 +1,21 @@
+{
+  "trading_mode": "PAPER",
+  "paper_trading": {
+    "enabled": true,
+    "initial_capital": 100000,
+    "commission": 0.0,
+    "slippage": 0.001
+  },
+  "market_hours": {
+    "allow_extended_hours": true,
+    "allow_global_markets": true,
+    "allow_crypto_24_7": true,
+    "allow_forex_24_5": true
+  },
+  "risk_management": {
+    "max_position_size": 0.1,
+    "max_daily_loss": 0.05,
+    "stop_loss_pct": 0.03,
+    "paper_mode_safety": true
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "timestamp": "2025-09-25T13:33:50.901761",
+  "environment": {
+    "passed": [
+      "Python version >= 3.8"
+    ],
+    "failed": [],
+    "warnings": [
+      "Alpaca API key not configured",
+      "Alpaca secret key not configured",
+      "Alpaca base URL using default",
+      "Log level using default",
+      "Database URL using default"
+    ]
+  },
+  "dependencies": {
+    "passed": [
+      "Package asyncio available",
+      "Package logging available",
+      "Package datetime available",
+      "Package json available",
+      "Package numpy available",
+      "Package pandas available",
+      "Package psycopg2 available",
+      "Package redis available",
+      "Package docker available",
+      "Package requests available",
+      "Package aiohttp available"
+    ],
+    "failed": [],
+    "warnings": [
+      "Trading package alpaca_trade_api not available",
+      "Trading package yfinance not available",
+      "Trading package ta not available",
+      "Trading package scikit-learn not available"
+    ]
+  },
+  "databases": {
+    "passed": [
+      "PostgreSQL connection successful",
+      "Redis connection successful"
+    ],
+    "failed": [],
+    "warnings": []
+  },
+  "trading": {
+    "passed": [
+      "Main entry point exists",
+      "Logs directory exists"
+    ],
+    "failed": [
+      "Module src.system_orchestrator import failed: No module named 'src'",
+      "Module src.base_agent import failed: No module named 'src'",
+      "Module src.real_alpaca_integration import failed: No module named 'src'",
+      "Module src.advanced_risk_manager import failed: No module named 'src'",
+      "Module src.data_sources import failed: No module named 'src'"
+    ],
+    "warnings": []
+  },
+  "ai_systems": {
+    "passed": [],
+    "failed": [],
+    "warnings": [
+      "AI module src.ai_enhanced_agent import failed: No module named 'src'",
+      "AI module src.free_intelligence_system import failed: No module named 'src'",
+      "AI module src.hybrid_ai_system import failed: No module named 'src'",
+      "AI module src.perplexity_intelligence import failed: No module named 'src'",
+      "Free intelligence system failed: No module named 'src'"
+    ]
+  },
+  "configuration": {
+    "passed": [
+      "Config file config/settings.py exists",
+      "Config file requirements.txt exists",
+      "Config file docker-compose.yml exists",
+      "Optimized configuration available"
+    ],
+    "failed": [],
+    "warnings": []
+  },
+  "overall_status": "UNKNOWN"
+}

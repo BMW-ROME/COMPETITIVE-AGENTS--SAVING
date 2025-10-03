@@ -1,0 +1,21 @@
+{
+  "news_sources": [
+    {
+      "name": "Financial News API",
+      "url": "https://newsapi.org/v2/everything",
+      "params": {
+        "q": "finance OR trading OR stocks",
+        "language": "en",
+        "sortBy": "publishedAt"
+      }
+    },
+    {
+      "name": "Mock Financial News",
+      "type": "mock",
+      "description": "Fallback when external sources fail"
+    }
+  ],
+  "fallback_strategy": "mock_data",
+  "retry_attempts": 3,
+  "timeout": 10
+}

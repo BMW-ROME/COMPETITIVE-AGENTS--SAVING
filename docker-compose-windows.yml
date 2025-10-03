@@ -1,0 +1,136 @@
+# 🚀 COMPETITIVE TRADING AGENTS - OPTIMIZED DOCKER DEPLOYMENT
+# Multi-service architecture for maximum profit generation
+
+version: '3.8'
+
+services:
+  # 🔥 MAXIMAL TRADING SYSTEM (Primary Profit Engine)
+  maximal-trading:
+    build: .
+    container_name: maximal-profit-engine
+    environment:
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL}
+      - TRADING_MODE=MAXIMAL
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./data:/app/data
+    ports:
+      - "5000:5000"  # Dashboard
+    command: python alpaca_paper_trading_maximal.py
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ⚡ ULTRA-AGGRESSIVE SYSTEM (Maximum Risk/Reward)
+  ultra-aggressive:
+    build: .
+    container_name: ultra-aggressive-engine
+    environment:
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL}
+      - TRADING_MODE=ULTRA_AGGRESSIVE
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    ports:
+      - "5001:5000"  # Dashboard
+    command: python run_ultra_aggressive_trading.py
+    restart: unless-stopped
+    profiles: ["full", "aggressive"]
+
+  # 🎯 SMART OPTIMIZED SYSTEM (Balanced Approach)
+  smart-optimized:
+    build: .
+    container_name: smart-optimized-engine
+    environment:
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL}
+      - TRADING_MODE=SMART_OPTIMIZED
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    ports:
+      - "5002:5000"  # Dashboard
+    command: python run_optimized_smart_trading.py
+    restart: unless-stopped
+    profiles: ["full", "balanced"]
+
+  # 💪 REAL COMPETITIVE SYSTEM (Competition Mode)
+  real-competitive:
+    build: .
+    container_name: real-competitive-engine
+    environment:
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL}
+      - TRADING_MODE=REAL_COMPETITIVE
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    ports:
+      - "5003:5000"  # Dashboard
+    command: python run_real_competitive_trading.py
+    restart: unless-stopped
+    profiles: ["full", "competitive"]
+
+  # 📊 MONITORING DASHBOARD (System Overview)
+  monitoring-dashboard:
+    build: .
+    container_name: profit-monitor
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./data:/app/data
+    ports:
+      - "8080:8080"  # Main monitoring port
+    command: python monitoring_dashboard.py
+    restart: unless-stopped
+    depends_on:
+      - maximal-trading
+
+  # 🗄️ DATABASE (Performance Analytics)
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading-analytics-db
+    environment:
+      - POSTGRES_DB=trading_analytics
+      - POSTGRES_USER=trader
+      - POSTGRES_PASSWORD=profit_maximizer_2025
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    profiles: ["full", "analytics"]
+
+  # 📈 REDIS (Real-time Cache)
+  redis:
+    image: redis:7-alpine
+    container_name: trading-cache
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    profiles: ["full", "cache"]
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: profit-maximization-network

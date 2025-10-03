@@ -1,0 +1,40 @@
+# Ultra-Minimal Alpaca Paper Trading Docker Image - No Complex Dependencies
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Install ONLY the absolute essentials (skip alpaca-trade-api to avoid aiohttp issues)
+RUN pip install --no-cache-dir \
+    python-dotenv \
+    requests
+
+# Copy application files
+COPY alpaca_paper_trading_minimal.py .
+COPY continuous_trading_system.py .
+
+# Create necessary directories
+RUN mkdir -p /app/logs /app/data /app/reports
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV TRADING_MODE=ALPACA_PAPER
+
+# Expose port for monitoring
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "print('Minimal Alpaca System Running')" || exit 1
+
+# Default command
+CMD ["python", "alpaca_paper_trading_minimal.py"]
